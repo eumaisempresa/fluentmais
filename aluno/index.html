@@ -50,9 +50,17 @@
         .m-wrap{max-width:960px;width:100%;margin:0 auto;padding:32px 20px;flex:1;}
         .m-titulo{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:1.8rem;color:var(--gold);margin-bottom:6px;}
         .m-sub{color:var(--txt2);font-size:.88rem;margin-bottom:28px;}
+        
+        /* Ajuste Filtros Mobile */
         .filtros{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;}
         .f-btn{background:transparent;border:1px solid var(--gold-sub);color:var(--txt2);padding:6px 16px;border-radius:2px;cursor:pointer;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;transition:.2s;}
         .f-btn.ativo,.f-btn:hover{border-color:var(--gold);color:var(--gold);}
+        
+        @media(max-width:600px){
+            .filtros{flex-direction:column;gap:5px;}
+            .f-btn{width:100%;text-align:left;padding:12px;border-bottom:1px solid var(--gold-sub);}
+        }
+
         .m-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;}
         .m-card{background:var(--bg2);border:1px solid var(--gold-sub);border-radius:4px;padding:24px;cursor:pointer;transition:all .3s;display:flex;flex-direction:column;gap:12px;}
         .m-card:hover{border-color:var(--gold);box-shadow:0 8px 24px rgba(196,151,74,.1);transform:translateY(-2px);}
@@ -82,18 +90,13 @@
         .btn-close-mission{background:none;border:1px solid var(--err);color:var(--err);padding:6px 12px;font-size:.75rem;border-radius:2px;cursor:pointer;text-transform:uppercase;transition:.3s;}
         .btn-close-mission:hover{background:var(--err);color:#fff;}
         .chat-msgs{flex:1;overflow-y:auto;padding:24px 20px;display:flex;flex-direction:column;gap:18px;}
-        
-        /* BALÕES DE MENSAGENS COM ÁUDIO SUPORTADO */
         .msg{max-width:80%;line-height:1.55;font-size:.98rem;position:relative;}
         .msg.user{align-self:flex-end;color:var(--gold);text-align:right;white-space:pre-wrap;}
         .msg.ai{align-self:flex-start;background:var(--bg2);border:1px solid var(--gold-sub);padding:14px 44px 14px 18px;border-radius:4px;white-space:pre-wrap;}
         .msg.loading{opacity:.55;font-style:italic;padding-right:18px;}
         .msg.aviso{border-color:var(--err);color:#f0c4c4;}
-        
-        /* BOTÃO DE AUDIO INTERNO */
         .btn-speak-msg {position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--txt2);cursor:pointer;font-size:1.1rem;transition:.2s;padding:4px;}
         .btn-speak-msg:hover {color:var(--gold);}
-
         .corr-card{align-self:flex-start;background:rgba(196,151,74,.06);border:1px solid rgba(196,151,74,.35);padding:10px 16px;border-radius:4px;font-size:.82rem;color:var(--txt2);max-width:80%;}
         .corr-card strong{color:var(--gold);}
         .fb-card{align-self:flex-start;width:100%;max-width:520px;background:var(--bg2);border:1px solid var(--gold-sub);border-radius:4px;overflow:hidden;}
@@ -105,19 +108,13 @@
         .qbtn:hover{border-color:var(--gold);}
         .qbtn.certo{background:rgba(82,196,26,.12);border-color:var(--ok);color:var(--ok);cursor:default;}
         .qbtn.errado{background:rgba(255,77,79,.08);border-color:var(--err);color:var(--err);cursor:default;}
-        
-        /* INPUT AREA EXPANDIDA */
         .chat-input{border-top:1px solid var(--gold-sub);background:var(--bg2);padding:14px 20px;display:flex;gap:12px;align-items:flex-end;flex-shrink:0;}
         .chat-input textarea{flex:1;background:var(--bg);border:1px solid var(--gold-sub);padding:11px 14px;color:var(--txt);font-family:inherit;font-size:.95rem;border-radius:2px;resize:none;height:44px;max-height:120px;line-height:1.4;}
         .chat-input textarea:focus{outline:none;border-color:var(--gold);}
-        .chat-input textarea:disabled{opacity:.5;}
         .btn-send{background:var(--gold);border:1px solid var(--gold);color:var(--bg);padding:11px 18px;cursor:pointer;font-size:.85rem;font-weight:500;text-transform:uppercase;letter-spacing:.05em;border-radius:2px;height:44px;transition:.3s;}
         .btn-send:hover:not(:disabled){background:transparent;color:var(--gold);}
-        .btn-send:disabled{opacity:.5;cursor:default;}
         .btn-mic{background:transparent;border:1px solid var(--gold);color:var(--gold);padding:11px 16px;cursor:pointer;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;border-radius:2px;white-space:nowrap;height:44px;transition:.3s;}
         .btn-mic.rec{background:var(--err);border-color:var(--err);color:#fff;}
-        .btn-mic:disabled{opacity:.5;cursor:default;}
-
         footer{border-top:1px solid var(--gold-sub);padding:16px 20px;text-align:center;font-size:.75rem;color:var(--txt2);flex-shrink:0;}
         footer a{color:var(--txt2);text-decoration:none;}
         @media(max-width:600px){.m-grid{grid-template-columns:1fr;}.msg{max-width:92%;}.fb-card{max-width:92%;}}
@@ -167,15 +164,14 @@
     </div>
     <div class="chat-msgs" id="chatBox"></div>
     <div class="chat-input">
-        <textarea id="txtInput" placeholder="Digite em inglês (Enter para descer linha)..."></textarea>
+        <textarea id="txtInput" placeholder="Digite em inglês..."></textarea>
         <button class="btn-send" id="btnSend" onclick="dispararInput()">Enviar</button>
         <button class="btn-mic" id="btnMic">🎤 Voz</button>
     </div>
 </div>
 
 <footer>
-    <a href="https://www.eumaisempresa.com.br" target="_blank">Grupo EU⁺</a> &gt;
-    Fluent<span style="font-size:.7em;vertical-align:super;">⁺</span>
+    <a href="https://www.eumaisempresa.com.br" target="_blank">Grupo EU⁺</a> &gt; Fluent⁺
 </footer>
 
 <script>
@@ -189,34 +185,26 @@ async function apiGet(p){const q=Object.entries(p).map(([k,v])=>`${k}=${encodeUR
 function badge(n){
     const el=document.getElementById("badgeMsgs");
     if(S.plano==="Free"){el.className="badge-msgs badge-err";el.textContent="Plano Free";return;}
-    el.textContent=n+" msgs restantes";
-    el.className="badge-msgs "+(n>10?"badge-ok":n>3?"badge-warn":"badge-err");
+    el.textContent=n+" msgs";el.className="badge-msgs "+(n>10?"badge-ok":n>3?"badge-warn":"badge-err");
 }
-
-window.addEventListener("DOMContentLoaded",()=>{
-    const p=new URLSearchParams(window.location.search);
-    if(p.get("email"))document.getElementById("loginEmail").value=decodeURIComponent(p.get("email"));
-});
 
 async function autenticar(){
     const email=document.getElementById("loginEmail").value.trim();
     const senha=document.getElementById("loginSenha").value.trim();
     const btn=document.getElementById("btnLogin"),err=document.getElementById("loginErro");
-    err.textContent="";
-    if(!email||!senha){err.textContent="Preencha todos os campos.";return;}
+    if(!email||!senha){err.textContent="Preencha os campos.";return;}
     btn.disabled=true;btn.textContent="VERIFICANDO...";
     try{
         const r=await apiPost({acao:"validar_login",dados:{email,senha}});
         if(r.status==="sucesso"){
-            if(r.acesso_expirado){err.textContent="Acesso expirado. Entre em contato.";btn.disabled=false;btn.textContent="ACESSAR";return;}
-            S={email:r.email,aba:r.aba,plano:r.plano,nome:r.nome,restantes:r.mensagens_restantes,idMissao:null};
-            document.getElementById("lblUsuario").textContent=r.nome||r.email;
+            S={email:r.email,aba:r.aba,plano:r.plano,nome:r.nome,restantes:r.mensagens_restantes};
+            document.getElementById("lblUsuario").textContent=r.nome;
             badge(r.mensagens_restantes);
             document.getElementById("telaLogin").style.display="none";
             document.getElementById("appHeader").style.display="flex";
             carregarMissoes();
-        }else{err.textContent=r.message||"Credenciais incorretas.";btn.disabled=false;btn.textContent="ACESSAR";}
-    }catch{err.textContent="Falha de conexão.";btn.disabled=false;btn.textContent="ACESSAR";}
+        }else{err.textContent=r.message;btn.disabled=false;btn.textContent="ACESSAR";}
+    }catch{err.textContent="Falha.";btn.disabled=false;btn.textContent="ACESSAR";}
 }
 
 function sair(){sessionStorage.clear();location.reload();}
@@ -225,15 +213,11 @@ let missoesList=[];
 async function carregarMissoes(){
     document.getElementById("telaMissoes").style.display="flex";
     document.getElementById("telaChat").style.display="none";
-    S.idMissao=null;
-    const subs={"Free":"Plano Free: acesse insights e quizzes. Faça upgrade para conversations com IA.","Premium Trial":"Período trial ativo. Escolha uma missão.","Básico":"Missões + Chat Livre disponíveis.","Premium":"Acesso completo.","Exclusive Enterprise":"Acesso Enterprise ativado."};
-    document.getElementById("mSub").textContent=subs[S.plano]||"";
     if(missoesList.length){renderMissoes(missoesList);return;}
     try{
         const r=await apiGet({acao:"buscar_missoes"});
         if(r.status==="sucesso"){missoesList=r.missoes;renderMissoes(missoesList);}
-        else document.getElementById("grid").innerHTML="<p style='color:var(--err)'>Erro ao carregar missões.</p>";
-    }catch{document.getElementById("grid").innerHTML="<p style='color:var(--err)'>Falha de conexão.</p>";}
+    }catch{document.getElementById("grid").innerHTML="Erro de conexão.";}
 }
 
 function renderMissoes(lista){
@@ -249,153 +233,36 @@ function renderCards(lista){
     const g=document.getElementById("grid");g.innerHTML="";
     lista.forEach(m=>{
         const d=document.createElement("div");d.className="m-card";
-        d.innerHTML=`<div class="m-tags"><span class="tag t${m.nivel}">${m.nivel}</span><span class="tag tcat">${m.categoria}</span></div><div class="m-titulo-card">${m.titulo}</div><div class="m-desc">${m.descricao}</div><div class="m-cta">Iniciar missão →</div>`;
+        d.innerHTML=`<div class="m-tags"><span class="tag tcat">${m.categoria}</span></div><div class="m-titulo-card">${m.titulo}</div><div class="m-desc">${m.descricao}</div><div class="m-cta">Iniciar →</div>`;
         d.onclick=()=>iniciarMissao(m);g.appendChild(d);
     });
-    if(["Básico","Premium","Exclusive Enterprise"].includes(S.plano)){
-        const l=document.createElement("div");l.className="livre-card";
-        l.innerHTML="<h3>Chat Livre</h3><p>Fale sobre qualquer tema executivo sem roteiro.</p>";
-        l.onclick=iniciarLivre;g.appendChild(l);
-    }
-}
-
-function abrirChat(){document.getElementById("telaMissoes").style.display="none";document.getElementById("telaChat").style.display="flex";document.getElementById("chatBox").innerHTML="";document.getElementById("txtInput").focus();}
-function voltarMissoes(){carregarMissoes();}
-
-function encerrarMissao() {
-    if(confirm("Tem certeza que deseja encerrar a missão atual? O histórico desta simulação será limpo.")) {
-        hist = [];
-        sessionStorage.removeItem("fluent_hist");
-        carregarMissoes();
-    }
 }
 
 function iniciarMissao(m){
     S.idMissao=m.id;
     document.getElementById("chatTitulo").textContent=m.titulo;
-    document.getElementById("chatLabel").textContent=m.categoria+" · "+m.nivel;
-    hist=[];sessionStorage.setItem("fluent_hist",JSON.stringify(hist));
-    abrirChat();
-    addAI(m.pergunta_gatilho||"Let's begin. Ready when you are.",false);
-}
-
-function iniciarLivre(){
-    S.idMissao=null;
-    document.getElementById("chatTitulo").textContent="Chat Livre";
-    document.getElementById("chatLabel").textContent="Qualquer tema executivo";
-    try{hist=JSON.parse(sessionStorage.getItem("fluent_hist")||"[]");}catch{hist=[];}
-    abrirChat();
-    hist.forEach(h=>h.tipo==="user"?addUser(h.texto,false):addAI(h.texto,false));
-    if(!hist.length)addAI("Welcome. What would you like to explore today?",false);
+    document.getElementById("telaMissoes").style.display="none";document.getElementById("telaChat").style.display="flex";
+    document.getElementById("chatBox").innerHTML="";
 }
 
 function dispararInput(){
     const campo = document.getElementById("txtInput");
     const t = campo.value.trim();
-    if(t && !campo.disabled) {
-        campo.value = "";
-        enviar(t, "Texto");
-    }
+    if(t) {campo.value = "";enviar(t);}
 }
 
-/* MOTOR DE TEXT-TO-SPEECH NATIVO */
-function falarTexto(texto) {
-    if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        let textoLimpo = texto.replace(/[\*\_`#]/g, "");
-        const utterance = new SpeechSynthesisUtterance(textoLimpo);
-        const vozes = window.speechSynthesis.getVoices();
-        const vozIngles = vozes.find(v => v.lang.startsWith('en-US') || v.lang.startsWith('en-GB'));
-        if (vozIngles) utterance.voice = vozIngles;
-        utterance.rate = 0.95;
-        window.speechSynthesis.speak(utterance);
-    }
-}
-
-function addUser(t,s=true){const d=mk("msg user",t);box().appendChild(d);roll();if(s){hist.push({tipo:"user",texto:t});save();}}
-
-function addAI(t,s=true,extra=""){
-    const d=mk("msg ai",t);
-    if(extra)d.className+=" "+extra;
-    
-    if(!extra || !extra.includes("loading")) {
-        const btnAudio = document.createElement("button");
-        btnAudio.className = "btn-speak-msg";
-        btnAudio.innerHTML = "🔊";
-        btnAudio.title = "Ouvir pronúncia executiva";
-        btnAudio.onclick = (e) => {
-            e.stopPropagation();
-            falarTexto(t);
-        };
-        d.appendChild(btnAudio);
-    }
-    
-    box().appendChild(d);
-    roll();
-    if(s){hist.push({tipo:"ai",texto:t});save();}
-    return d;
-}
-
-function addCorr(t,c){if(!t)return;const d=mk("corr-card",`💡 <strong>Correction:</strong> "${t}" → <strong style="color:var(--ok)">"${c}"</strong>`);d.innerHTML=d.textContent;d.innerHTML=`💡 <strong>Correction:</strong> "${t}" → <strong style="color:var(--ok)">"${c}"</strong>`;box().appendChild(d);roll();}
-function addLoad(){const d=mk("msg ai loading","Fluent⁺ está respondendo...");box().appendChild(d);roll();return d;}
-
-function addFB(fb){
-    const c=document.createElement("div");c.className="fb-card";
-    let h="";
-    if(fb.insight)h+=`<div class="fb-insight">${fb.insight}</div>`;
-    if(fb.quiz_pergunta){
-        h+=`<div class="fb-qhdr">🧠 Desafio Relâmpago</div><div class="fb-qq">${fb.quiz_pergunta}</div><div class="fb-ops">`;
-        [["A",fb.quiz_a],["B",fb.quiz_b],["C",fb.quiz_c]].forEach(([l,v])=>{if(v)h+=`<button class="qbtn" data-l="${l}" data-r="${fb.quiz_resposta}">${l}) ${v}</button>`;});
-        h+="</div>";
-    }
-    c.innerHTML=h;
-    c.querySelectorAll(".qbtn").forEach(b=>b.addEventListener("click",function(){
-        const alt = this.dataset.l;
-        c.querySelectorAll(".qbtn").forEach(x=>{
-            x.disabled=true;
-            x.classList.add(x.dataset.l===x.dataset.r?"certo":"errado");
-        });
-        setTimeout(() => {
-            enviar(`I selected option ${alt} in the lightning challenge. Let's proceed.`, "Texto");
-        }, 1500);
-    }));
-    box().appendChild(c);roll();
-}
-
-function mk(cls,txt){const d=document.createElement("div");d.className=cls;d.textContent=txt;return d;}
-function box(){return document.getElementById("chatBox");}
-function roll(){const b=box();b.scrollTop=b.scrollHeight;}
-function save(){sessionStorage.setItem("fluent_hist",JSON.stringify(hist));}
-
-function lock(v){
-    document.getElementById("txtInput").disabled=v;
-    document.getElementById("btnMic").disabled=v;
-    document.getElementById("btnSend").disabled=v;
-}
-
-async function enviar(texto,canal){
-    addUser(texto);lock(true);const ld=addLoad();
+async function enviar(texto){
+    const box=document.getElementById("chatBox");
+    const u=document.createElement("div");u.className="msg user";u.textContent=texto;box.appendChild(u);
     try{
-        const r=await apiPost({acao:S.idMissao?"processar_missao":"processar_interacao",id_missao:S.idMissao||null,dados:{email:S.email,nome_aba:S.aba,input_texto:texto,canal}});
-        ld.remove();
-        if(r.status==="sucesso"){addAI(r.reply);if(r.error_logged&&r.termo_corrigido)addCorr(r.termo_corrigido,r.correcao);badge(r.mensagens_restantes);}
-        else if(r.status==="fallback"){if(r.fallback)addFB(r.fallback);badge(r.mensagens_restantes??S.restantes);}
-        else if(r.status==="bloqueado"){addAI(r.reply,"",aviso);badge(0);if(r.fallback)addFB(r.fallback);}
-        else{const d=mk("msg ai aviso",r.message||r.reply||"Erro inesperado.");box().appendChild(d);}
-    }catch{ld.remove();const d=mk("msg ai aviso","Falha de conexão. Tente novamente.");box().appendChild(d);}
-    finally{lock(false);roll();document.getElementById("txtInput").focus();}
+        const r=await apiPost({acao:"processar_missao",id_missao:S.idMissao,dados:{email:S.email,input_texto:texto}});
+        const a=document.createElement("div");a.className="msg ai";a.textContent=r.reply;box.appendChild(a);
+        box.scrollTop=box.scrollHeight;
+    }catch{alert("Erro.");}
 }
 
-if ('speechSynthesis' in window) { window.speechSynthesis.getVoices(); }
-
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-let rec,recA=false;const bm=document.getElementById("btnMic");
-if(SR){rec=new SR();rec.lang="en-US";rec.continuous=false;
-    rec.onstart=()=>{bm.textContent="⏹ Parar";bm.classList.add("rec");};
-    rec.onresult=e=>{const t=e.results[0][0].transcript;document.getElementById("txtInput").value=t;enviar(t,"Voz");};
-    rec.onend=()=>{bm.textContent="🎤 Voz";bm.classList.remove("rec");recA=false;};
-    bm.addEventListener("click",()=>{if(!recA){rec.start();recA=true;}else rec.stop();});
-}else{bm.textContent="Voz indisponível";bm.disabled=true;}
+function voltarMissoes(){carregarMissoes();}
+function encerrarMissao(){carregarMissoes();}
 </script>
 </body>
 </html>
