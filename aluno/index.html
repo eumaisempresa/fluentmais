@@ -301,19 +301,13 @@ function dispararInput(){
 /* MOTOR DE TEXT-TO-SPEECH NATIVO */
 function falarTexto(texto) {
     if ('speechSynthesis' in window) {
-        // Cancela qualquer áudio rodando para não encavalar
         window.speechSynthesis.cancel();
-        
-        // Limpa marcações estéticas antes de ler
         let textoLimpo = texto.replace(/[\*\_`#]/g, "");
         const utterance = new SpeechSynthesisUtterance(textoLimpo);
-        
-        // Tenta fixar uma voz padrão em inglês executivo
         const vozes = window.speechSynthesis.getVoices();
         const vozIngles = vozes.find(v => v.lang.startsWith('en-US') || v.lang.startsWith('en-GB'));
         if (vozIngles) utterance.voice = vozIngles;
-        
-        utterance.rate = 0.95; // Velocidade ligeiramente controlada para clareza corporativa
+        utterance.rate = 0.95;
         window.speechSynthesis.speak(utterance);
     }
 }
@@ -324,7 +318,6 @@ function addAI(t,s=true,extra=""){
     const d=mk("msg ai",t);
     if(extra)d.className+=" "+extra;
     
-    // Injeta botão de alto-falante se não for aviso ou carregamento
     if(!extra || !extra.includes("loading")) {
         const btnAudio = document.createElement("button");
         btnAudio.className = "btn-speak-msg";
@@ -393,7 +386,6 @@ async function enviar(texto,canal){
     finally{lock(false);roll();document.getElementById("txtInput").focus();}
 }
 
-// Garante carregamento assíncrono das vozes nativas do navegador
 if ('speechSynthesis' in window) { window.speechSynthesis.getVoices(); }
 
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
