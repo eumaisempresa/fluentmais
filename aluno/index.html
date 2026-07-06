@@ -64,7 +64,7 @@
         .tcat{background:rgba(122,143,163,.12);color:var(--txt2);}
         .m-titulo-card{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:400;}
         .m-desc{font-size:.85rem;color:var(--txt2);line-height:1.5;}
-        .m-cta">Iniciar missão →</div>
+        .m-cta{font-size:.78rem;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-top:auto;}
         .livre-card{background:var(--bg);border:1px dashed var(--gold-sub);border-radius:4px;padding:24px;cursor:pointer;transition:all .3s;text-align:center;}
         .livre-card:hover{border-color:var(--gold);}
         .livre-card h3{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:1.2rem;color:var(--txt2);margin-bottom:6px;}
@@ -82,11 +82,18 @@
         .btn-close-mission{background:none;border:1px solid var(--err);color:var(--err);padding:6px 12px;font-size:.75rem;border-radius:2px;cursor:pointer;text-transform:uppercase;transition:.3s;}
         .btn-close-mission:hover{background:var(--err);color:#fff;}
         .chat-msgs{flex:1;overflow-y:auto;padding:24px 20px;display:flex;flex-direction:column;gap:18px;}
-        .msg{max-width:80%;line-height:1.55;font-size:.98rem;}
+        
+        /* BALÕES DE MENSAGENS COM ÁUDIO SUPORTADO */
+        .msg{max-width:80%;line-height:1.55;font-size:.98rem;position:relative;}
         .msg.user{align-self:flex-end;color:var(--gold);text-align:right;white-space:pre-wrap;}
-        .msg.ai{align-self:flex-start;background:var(--bg2);border:1px solid var(--gold-sub);padding:14px 18px;border-radius:4px;white-space:pre-wrap;}
-        .msg.loading{opacity:.55;font-style:italic;}
+        .msg.ai{align-self:flex-start;background:var(--bg2);border:1px solid var(--gold-sub);padding:14px 44px 14px 18px;border-radius:4px;white-space:pre-wrap;}
+        .msg.loading{opacity:.55;font-style:italic;padding-right:18px;}
         .msg.aviso{border-color:var(--err);color:#f0c4c4;}
+        
+        /* BOTÃO DE AUDIO INTERNO */
+        .btn-speak-msg {position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--txt2);cursor:pointer;font-size:1.1rem;transition:.2s;padding:4px;}
+        .btn-speak-msg:hover {color:var(--gold);}
+
         .corr-card{align-self:flex-start;background:rgba(196,151,74,.06);border:1px solid rgba(196,151,74,.35);padding:10px 16px;border-radius:4px;font-size:.82rem;color:var(--txt2);max-width:80%;}
         .corr-card strong{color:var(--gold);}
         .fb-card{align-self:flex-start;width:100%;max-width:520px;background:var(--bg2);border:1px solid var(--gold-sub);border-radius:4px;overflow:hidden;}
@@ -291,9 +298,52 @@ function dispararInput(){
     }
 }
 
+/* MOTOR DE TEXT-TO-SPEECH NATIVO */
+function falarTexto(texto) {
+    if ('speechSynthesis' in window) {
+        // Cancela qualquer áudio rodando para não encavalar
+        window.speechSynthesis.cancel();
+        
+        // Limpa marcações estéticas antes de ler
+        let textoLimpo = texto.replace(/[\*\_`#]/g, "");
+        const utterance = new SpeechSynthesisUtterance(textoLimpo);
+        
+        // Tenta fixar uma voz padrão em inglês executivo
+        const vozes = window.speechSynthesis.getVoices();
+        const vozIngles = vozes.find(v => v.lang.startsWith('en-US') || v.lang.startsWith('en-GB'));
+        if (vozIngles) utterance.voice = vozIngles;
+        
+        utterance.rate = 0.95; // Velocidade ligeiramente controlada para clareza corporativa
+        window.speechSynthesis.speak(utterance);
+    }
+}
+
 function addUser(t,s=true){const d=mk("msg user",t);box().appendChild(d);roll();if(s){hist.push({tipo:"user",texto:t});save();}}
-function addAI(t,s=true,extra=""){const d=mk("msg ai",t);if(extra)d.className+=" "+extra;box().appendChild(d);roll();if(s){hist.push({tipo:"ai",texto:t});save();}return d;}
-function addCorr(t,c){if(!t)return;const d=mk("corr-card",`💡 <strong>Correction:</strong> "${t}" → <strong style="color:var(--ok)">"${c}"</strong>`);d.innerHTML=d.textContent;d.innerHTML=`💡 <strong>Correction:</strong> "${t}" → <strong style="color:var(--ok)">"${c}"</strong>`);box().appendChild(d);roll();}
+
+function addAI(t,s=true,extra=""){
+    const d=mk("msg ai",t);
+    if(extra)d.className+=" "+extra;
+    
+    // Injeta botão de alto-falante se não for aviso ou carregamento
+    if(!extra || !extra.includes("loading")) {
+        const btnAudio = document.createElement("button");
+        btnAudio.className = "btn-speak-msg";
+        btnAudio.innerHTML = "🔊";
+        btnAudio.title = "Ouvir pronúncia executiva";
+        btnAudio.onclick = (e) => {
+            e.stopPropagation();
+            falarTexto(t);
+        };
+        d.appendChild(btnAudio);
+    }
+    
+    box().appendChild(d);
+    roll();
+    if(s){hist.push({tipo:"ai",texto:t});save();}
+    return d;
+}
+
+function addCorr(t,c){if(!t)return;const d=mk("corr-card",`💡 <strong>Correction:</strong> "${t}" → <strong style="color:var(--ok)">"${c}"</strong>`);d.innerHTML=d.textContent;d.innerHTML=`💡 <strong>Correction:</strong> "${t}" → <strong style="color:var(--ok)">"${c}"</strong>`;box().appendChild(d);roll();}
 function addLoad(){const d=mk("msg ai loading","Fluent⁺ está respondendo...");box().appendChild(d);roll();return d;}
 
 function addFB(fb){
@@ -312,7 +362,6 @@ function addFB(fb){
             x.disabled=true;
             x.classList.add(x.dataset.l===x.dataset.r?"certo":"errado");
         });
-        // Gatilho automático pós-quiz após 1.5 segundos
         setTimeout(() => {
             enviar(`I selected option ${alt} in the lightning challenge. Let's proceed.`, "Texto");
         }, 1500);
@@ -343,6 +392,9 @@ async function enviar(texto,canal){
     }catch{ld.remove();const d=mk("msg ai aviso","Falha de conexão. Tente novamente.");box().appendChild(d);}
     finally{lock(false);roll();document.getElementById("txtInput").focus();}
 }
+
+// Garante carregamento assíncrono das vozes nativas do navegador
+if ('speechSynthesis' in window) { window.speechSynthesis.getVoices(); }
 
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 let rec,recA=false;const bm=document.getElementById("btnMic");
