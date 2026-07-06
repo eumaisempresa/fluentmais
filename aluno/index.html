@@ -64,7 +64,7 @@
         .tcat{background:rgba(122,143,163,.12);color:var(--txt2);}
         .m-titulo-card{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:400;}
         .m-desc{font-size:.85rem;color:var(--txt2);line-height:1.5;}
-        .m-cta{font-size:.78rem;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-top:auto;}
+        .m-cta">Iniciar missão →</div>
         .livre-card{background:var(--bg);border:1px dashed var(--gold-sub);border-radius:4px;padding:24px;cursor:pointer;transition:all .3s;text-align:center;}
         .livre-card:hover{border-color:var(--gold);}
         .livre-card h3{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:1.2rem;color:var(--txt2);margin-bottom:6px;}
@@ -73,15 +73,18 @@
 
         /* CHAT */
         #telaChat{display:none;flex:1;flex-direction:column;overflow:hidden;}
-        .chat-hdr{background:var(--bg2);border-bottom:1px solid var(--gold-sub);padding:12px 20px;display:flex;align-items:center;gap:14px;flex-shrink:0;}
+        .chat-hdr{background:var(--bg2);border-bottom:1px solid var(--gold-sub);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+        .chat-hdr-left{display:flex;align-items:center;gap:14px;}
         .btn-back{background:none;border:none;color:var(--txt2);cursor:pointer;font-size:1.3rem;padding:4px 8px;border-radius:2px;}
         .btn-back:hover{color:var(--gold);}
         .chat-titulo{font-size:.9rem;color:var(--txt);font-weight:500;}
         .chat-label{font-size:.75rem;color:var(--txt2);}
+        .btn-close-mission{background:none;border:1px solid var(--err);color:var(--err);padding:6px 12px;font-size:.75rem;border-radius:2px;cursor:pointer;text-transform:uppercase;transition:.3s;}
+        .btn-close-mission:hover{background:var(--err);color:#fff;}
         .chat-msgs{flex:1;overflow-y:auto;padding:24px 20px;display:flex;flex-direction:column;gap:18px;}
         .msg{max-width:80%;line-height:1.55;font-size:.98rem;}
-        .msg.user{align-self:flex-end;color:var(--gold);text-align:right;}
-        .msg.ai{align-self:flex-start;background:var(--bg2);border:1px solid var(--gold-sub);padding:14px 18px;border-radius:4px;}
+        .msg.user{align-self:flex-end;color:var(--gold);text-align:right;white-space:pre-wrap;}
+        .msg.ai{align-self:flex-start;background:var(--bg2);border:1px solid var(--gold-sub);padding:14px 18px;border-radius:4px;white-space:pre-wrap;}
         .msg.loading{opacity:.55;font-style:italic;}
         .msg.aviso{border-color:var(--err);color:#f0c4c4;}
         .corr-card{align-self:flex-start;background:rgba(196,151,74,.06);border:1px solid rgba(196,151,74,.35);padding:10px 16px;border-radius:4px;font-size:.82rem;color:var(--txt2);max-width:80%;}
@@ -95,11 +98,16 @@
         .qbtn:hover{border-color:var(--gold);}
         .qbtn.certo{background:rgba(82,196,26,.12);border-color:var(--ok);color:var(--ok);cursor:default;}
         .qbtn.errado{background:rgba(255,77,79,.08);border-color:var(--err);color:var(--err);cursor:default;}
-        .chat-input{border-top:1px solid var(--gold-sub);background:var(--bg2);padding:14px 20px;display:flex;gap:12px;align-items:center;flex-shrink:0;}
-        .chat-input input{flex:1;background:var(--bg);border:1px solid var(--gold-sub);padding:11px 14px;color:var(--txt);font-family:inherit;font-size:.95rem;border-radius:2px;}
-        .chat-input input:focus{outline:none;border-color:var(--gold);}
-        .chat-input input:disabled{opacity:.5;}
-        .btn-mic{background:transparent;border:1px solid var(--gold);color:var(--gold);padding:10px 16px;cursor:pointer;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;border-radius:2px;white-space:nowrap;transition:.3s;}
+        
+        /* INPUT AREA EXPANDIDA */
+        .chat-input{border-top:1px solid var(--gold-sub);background:var(--bg2);padding:14px 20px;display:flex;gap:12px;align-items:flex-end;flex-shrink:0;}
+        .chat-input textarea{flex:1;background:var(--bg);border:1px solid var(--gold-sub);padding:11px 14px;color:var(--txt);font-family:inherit;font-size:.95rem;border-radius:2px;resize:none;height:44px;max-height:120px;line-height:1.4;}
+        .chat-input textarea:focus{outline:none;border-color:var(--gold);}
+        .chat-input textarea:disabled{opacity:.5;}
+        .btn-send{background:var(--gold);border:1px solid var(--gold);color:var(--bg);padding:11px 18px;cursor:pointer;font-size:.85rem;font-weight:500;text-transform:uppercase;letter-spacing:.05em;border-radius:2px;height:44px;transition:.3s;}
+        .btn-send:hover:not(:disabled){background:transparent;color:var(--gold);}
+        .btn-send:disabled{opacity:.5;cursor:default;}
+        .btn-mic{background:transparent;border:1px solid var(--gold);color:var(--gold);padding:11px 16px;cursor:pointer;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;border-radius:2px;white-space:nowrap;height:44px;transition:.3s;}
         .btn-mic.rec{background:var(--err);border-color:var(--err);color:#fff;}
         .btn-mic:disabled{opacity:.5;cursor:default;}
 
@@ -141,15 +149,19 @@
 
 <div id="telaChat">
     <div class="chat-hdr">
-        <button class="btn-back" onclick="voltarMissoes()">←</button>
-        <div>
-            <div class="chat-titulo" id="chatTitulo">Chat</div>
-            <div class="chat-label" id="chatLabel"></div>
+        <div class="chat-hdr-left">
+            <button class="btn-back" onclick="voltarMissoes()">←</button>
+            <div>
+                <div class="chat-titulo" id="chatTitulo">Chat</div>
+                <div class="chat-label" id="chatLabel"></div>
+            </div>
         </div>
+        <button class="btn-close-mission" onclick="encerrarMissao()">Encerrar Missão</button>
     </div>
     <div class="chat-msgs" id="chatBox"></div>
     <div class="chat-input">
-        <input type="text" id="txtInput" placeholder="Digite em inglês ou use o microfone...">
+        <textarea id="txtInput" placeholder="Digite em inglês (Enter para descer linha)..."></textarea>
+        <button class="btn-send" id="btnSend" onclick="dispararInput()">Enviar</button>
         <button class="btn-mic" id="btnMic">🎤 Voz</button>
     </div>
 </div>
@@ -207,7 +219,7 @@ async function carregarMissoes(){
     document.getElementById("telaMissoes").style.display="flex";
     document.getElementById("telaChat").style.display="none";
     S.idMissao=null;
-    const subs={"Free":"Plano Free: acesse insights e quizzes. Faça upgrade para conversas com IA.","Premium Trial":"Período trial ativo. Escolha uma missão.","Básico":"Missões + Chat Livre disponíveis.","Premium":"Acesso completo.","Exclusive Enterprise":"Acesso Enterprise ativado."};
+    const subs={"Free":"Plano Free: acesse insights e quizzes. Faça upgrade para conversations com IA.","Premium Trial":"Período trial ativo. Escolha uma missão.","Básico":"Missões + Chat Livre disponíveis.","Premium":"Acesso completo.","Exclusive Enterprise":"Acesso Enterprise ativado."};
     document.getElementById("mSub").textContent=subs[S.plano]||"";
     if(missoesList.length){renderMissoes(missoesList);return;}
     try{
@@ -243,6 +255,14 @@ function renderCards(lista){
 function abrirChat(){document.getElementById("telaMissoes").style.display="none";document.getElementById("telaChat").style.display="flex";document.getElementById("chatBox").innerHTML="";document.getElementById("txtInput").focus();}
 function voltarMissoes(){carregarMissoes();}
 
+function encerrarMissao() {
+    if(confirm("Tem certeza que deseja encerrar a missão atual? O histórico desta simulação será limpo.")) {
+        hist = [];
+        sessionStorage.removeItem("fluent_hist");
+        carregarMissoes();
+    }
+}
+
 function iniciarMissao(m){
     S.idMissao=m.id;
     document.getElementById("chatTitulo").textContent=m.titulo;
@@ -262,10 +282,20 @@ function iniciarLivre(){
     if(!hist.length)addAI("Welcome. What would you like to explore today?",false);
 }
 
+function dispararInput(){
+    const campo = document.getElementById("txtInput");
+    const t = campo.value.trim();
+    if(t && !campo.disabled) {
+        campo.value = "";
+        enviar(t, "Texto");
+    }
+}
+
 function addUser(t,s=true){const d=mk("msg user",t);box().appendChild(d);roll();if(s){hist.push({tipo:"user",texto:t});save();}}
 function addAI(t,s=true,extra=""){const d=mk("msg ai",t);if(extra)d.className+=" "+extra;box().appendChild(d);roll();if(s){hist.push({tipo:"ai",texto:t});save();}return d;}
-function addCorr(t,c){if(!t)return;const d=mk("corr-card",`💡 <strong>Correction:</strong> "${t}" → <strong style="color:var(--ok)">"${c}"</strong>`);d.innerHTML=d.textContent;d.innerHTML=`💡 <strong>Correction:</strong> "${t}" → <strong style="color:var(--ok)">"${c}"</strong>`;box().appendChild(d);roll();}
+function addCorr(t,c){if(!t)return;const d=mk("corr-card",`💡 <strong>Correction:</strong> "${t}" → <strong style="color:var(--ok)">"${c}"</strong>`);d.innerHTML=d.textContent;d.innerHTML=`💡 <strong>Correction:</strong> "${t}" → <strong style="color:var(--ok)">"${c}"</strong>`);box().appendChild(d);roll();}
 function addLoad(){const d=mk("msg ai loading","Fluent⁺ está respondendo...");box().appendChild(d);roll();return d;}
+
 function addFB(fb){
     const c=document.createElement("div");c.className="fb-card";
     let h="";
@@ -276,16 +306,30 @@ function addFB(fb){
         h+="</div>";
     }
     c.innerHTML=h;
-    c.querySelectorAll(".qbtn").forEach(b=>b.addEventListener("click",function(){c.querySelectorAll(".qbtn").forEach(x=>{x.disabled=true;x.classList.add(x.dataset.l===x.dataset.r?"certo":"errado");});}));
+    c.querySelectorAll(".qbtn").forEach(b=>b.addEventListener("click",function(){
+        const alt = this.dataset.l;
+        c.querySelectorAll(".qbtn").forEach(x=>{
+            x.disabled=true;
+            x.classList.add(x.dataset.l===x.dataset.r?"certo":"errado");
+        });
+        // Gatilho automático pós-quiz após 1.5 segundos
+        setTimeout(() => {
+            enviar(`I selected option ${alt} in the lightning challenge. Let's proceed.`, "Texto");
+        }, 1500);
+    }));
     box().appendChild(c);roll();
 }
+
 function mk(cls,txt){const d=document.createElement("div");d.className=cls;d.textContent=txt;return d;}
 function box(){return document.getElementById("chatBox");}
 function roll(){const b=box();b.scrollTop=b.scrollHeight;}
 function save(){sessionStorage.setItem("fluent_hist",JSON.stringify(hist));}
-function lock(v){document.getElementById("txtInput").disabled=v;document.getElementById("btnMic").disabled=v;}
 
-document.getElementById("txtInput").addEventListener("keypress",e=>{if(e.key==="Enter"&&!e.target.disabled&&e.target.value.trim()){const t=e.target.value.trim();e.target.value="";enviar(t,"Texto");}});
+function lock(v){
+    document.getElementById("txtInput").disabled=v;
+    document.getElementById("btnMic").disabled=v;
+    document.getElementById("btnSend").disabled=v;
+}
 
 async function enviar(texto,canal){
     addUser(texto);lock(true);const ld=addLoad();
