@@ -186,7 +186,7 @@
 
                 <div class="sucesso-info">
                     <div><strong>E-mail de acesso:</strong> <span id="infoEmail"></span></div>
-                    <div><strong>Link do Aluno:</strong> <span style="font-size: 0.85rem; color: var(--txt-secundario);">https://eumaisempresa.github.io/fluentmais/aluno/</span></div>
+                    <div><strong>Link do Aluno:</strong> <span style="font-size: 0.85rem; color: var(--txt-secundario);">https://eumaisempresa.github.io/fluentmais/painel/</span></div>
                 </div>
 
                 <a href="#" id="lnkWhatsApp" target="_blank" class="btn-wa">Também receber a senha por WhatsApp</a>
@@ -250,7 +250,7 @@
 
                     document.getElementById('infoEmail').innerText = emailInjetado;
                     document.getElementById('lnkWhatsApp').href = whatsappUrl;
-                    document.getElementById('lnkIrAluno').href = `https://eumaisempresa.github.io/fluentmais/aluno/?email=${encodeURIComponent(emailInjetado)}`;
+                    document.getElementById('lnkIrAluno').href = `https://eumaisempresa.github.io/fluentmais/painel/?email=${encodeURIComponent(emailInjetado)}`;
 
                     document.getElementById('blocoFormulario').style.display = "none";
                     document.getElementById('blocoSucesso').style.display = "block";
