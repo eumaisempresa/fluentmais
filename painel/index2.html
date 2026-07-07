@@ -498,47 +498,58 @@ function lock(v){
     document.getElementById("btnMic").disabled=v;
     document.getElementById("btnSend").disabled=v;
 }
-
-async function enviar(texto,canal){
-    addUser(texto);lock(true);const ld=addLoad();
-    try{
-        const r=await apiPost({
+                                                                      ///// AJUSTEI AQUI
+async function enviar(texto, canal){
+    addUser(texto); // Adiciona na tela e no 'hist' temporariamente
+    lock(true);
+    const ld = addLoad();
+    try {
+        const r = await apiPost({
             acao: S.idMissao ? "processar_missao" : "processar_interacao",
             id_missao: S.idMissao || null,
-            dados: {email:S.email, nome_aba:S.aba, input_texto:texto, canal, id_missao: S.idMissao || null}
+            dados: { email: S.email, nome_aba: S.aba, input_texto: texto, canal, id_missao: S.idMissao || null }
         });
         ld.remove();
-        if(r.status==="sucesso"){
+        
+        if (r.status === "sucesso") {
             addAI(r.reply);
-            if(r.error_logged&&r.termo_corrigido)addCorr(r.termo_corrigido,r.correcao);
+            if (r.error_logged && r.termo_corrigido) addCorr(r.termo_corrigido, r.correcao);
             S.restantes = r.mensagens_restantes;
             badge(r.mensagens_restantes);
         }
-        else if(r.status==="fallback"){
-            if(r.fallback)addFB(r.fallback);
+        else if (r.status === "fallback") {
+            if (r.fallback) addFB(r.fallback);
             badge(S.restantes);
         }
-        else if(r.status==="bloqueado"){
+        else if (r.status === "bloqueado") {
             addAI(r.reply || "Limite de crédito atingido.", "", "aviso");
             badge(0);
-            if(r.fallback)addFB(r.fallback);
+            if (r.fallback) addFB(r.fallback);
             renderCardUpgrade();
             return;
         }
-        else{const d=mk("msg ai aviso",r.message||r.reply||"Erro inesperado.");box().appendChild(d);}
-    }catch{ld.remove();const d=mk("msg ai aviso","Falha de conexão. Tente novamente.");box().appendChild(d);}
-    finally{
-        if(S.plano === "Free") {
-            lock(false);
-            document.getElementById("txtInput").focus();
-        } else if(!S.expirado && S.restantes > 0) {
+        else {
+            const d = mk("msg ai aviso", r.message || r.reply || "Erro inesperado.");
+            box().appendChild(d);
+        }
+    } catch (erro) {
+        ld.remove();
+        // REMÉDIO: Se falhou a rede, removemos o texto do histórico local para não poluir
+        hist.pop(); 
+        save();
+        
+        const d = mk("msg ai aviso", "Falha de conexão. Sua última mensagem não foi enviada. Por favor, tente digitar ou falar novamente.");
+        box().appendChild(d);
+    }
+    finally {
+        if (S.plano === "Free" || (!S.expirado && S.restantes > 0)) {
             lock(false);
             document.getElementById("txtInput").focus();
         }
         roll();
     }
-}
-
+} 
+                                                                     //////// ATE AQUI
 /* RECONHECIMENTO DE VOZ MELHORADO COM CAPTAÇÃO FLUIDA */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 let rec,recA=false, silenceTimer = null;
