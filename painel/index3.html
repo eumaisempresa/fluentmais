@@ -60,18 +60,20 @@
         .m-card:hover{border-color:var(--gold);box-shadow:0 8px 24px rgba(196,151,74,.1);transform:translateY(-2px);}
         .m-tags{display:flex;gap:8px;flex-wrap:wrap;}
         .tag{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:2px;}
-        .tag.tA1, .tag.tA2{background:rgba(82,196,26,.12);color:var(--ok);}
-        .tag.tB1, .tag.tB2{background:rgba(250,173,20,.12);color:var(--warn);}
-        .tag.tC1, .tag.tC2{background:rgba(196,151,74,.18);color:var(--gold);}
+        .tag.tA1{background:rgba(82,196,26,.12);color:var(--ok);}
+        .tag.tB1{background:rgba(250,173,20,.12);color:var(--warn);}
+        .tag.tC1{background:rgba(196,151,74,.18);color:var(--gold);}
         .tcat{background:rgba(122,143,163,.12);color:var(--txt2);}
         .m-titulo-card{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:400;}
         .m-desc{font-size:.85rem;color:var(--txt2);line-height:1.5;}
+        
+        /* CORRIGIDO O CSS QUE TRAVAVA O LOGIN AQUI: */
         .m-cta{font-size:.8rem;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;font-weight:500;margin-top:auto;}
         
-        .livre-card{background:var(--bg2);border:1px dashed var(--gold-sub);border-radius:4px;padding:24px;cursor:pointer;transition:all .3s;text-align:center;display:flex;flex-direction:column;justify-content:center;gap:8px;}
-        .livre-card:hover{border-color:var(--gold);box-shadow:0 8px 24px rgba(196,151,74,.05);}
-        .livre-card h3{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:1.3rem;color:var(--gold);}
-        .livre-card p{font-size:.82rem;color:var(--txt2);line-height:1.4;}
+        .livre-card{background:var(--bg2);border:1px dashed var(--gold-sub);border-radius:4px;padding:24px;cursor:pointer;transition:all .3s;text-align:center;}
+        .livre-card:hover{border-color:var(--gold);}
+        .livre-card h3{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:1.2rem;color:var(--txt2);margin-bottom:6px;}
+        .livre-card p{font-size:.82rem;color:var(--txt2);}
         .m-loading{text-align:center;padding:48px;color:var(--txt2);font-style:italic;}
 
         /* CHAT */
@@ -97,7 +99,7 @@
         .msg.loading{opacity:.55;font-style:italic;padding-right:18px;}
         .msg.aviso{border-color:var(--warn);color:#f0e4c4;}
         
-        /* CAIXA DE PREPARAÇÃO DE MISSÃO ELEGANTE */
+        /* CAIXA ELEGANTE START MISSION */
         .init-mission-box {display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;background:var(--bg2);border:1px solid var(--gold-sub);border-radius:6px;max-width:500px;margin:40px auto;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.25);animation:fadeIn 0.5s ease;}
         .init-mission-box p {font-size:0.95rem;color:var(--txt2);margin-bottom:20px;line-height:1.5;}
         .btn-init-action {background:transparent;border:1px solid var(--gold);color:var(--gold);padding:14px 28px;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;border-radius:3px;cursor:pointer;transition:0.3s;}
@@ -119,7 +121,7 @@
         .qbtn:hover{border-color:var(--gold);}
         .qbtn.certo{background:rgba(82,196,26,.12);border-color:var(--ok);color:var(--ok);cursor:default;}
         .qbtn.errado{background:rgba(255,77,79,.08);border-color:var(--err);color:var(--err);cursor:default;}
-
+        
         /* CARD PREMIUM DE UPGRADE */
         .upgrade-card-premium {align-self:center;width:100%;max-width:460px;background:linear-gradient(145deg, #0A1624, #0E1E30);border:1px solid var(--gold);padding:30px;border-radius:6px;text-align:center;box-shadow:0 12px 36px rgba(196,151,74,0.15);margin:20px 0;animation:fadeIn 0.4s ease;}
         .upgrade-card-premium h4{font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--gold);margin-bottom:10px;font-weight:600;}
@@ -223,7 +225,6 @@
 const API = "https://script.google.com/macros/s/AKfycbxP8AjgZ92Rloxe43CZxMFBRPAhgCSHG1Zm0PC65zo9c1biSeA2yGgZVMv2lsV01J4i/exec";
 let S = {email:"",aba:"",plano:"",nome:"",restantes:0,idMissao:null,expirado:false};
 let hist = [];
-let missoesList = [];
 
 async function apiPost(p){const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(p)});return r.json();}
 async function apiGet(p){const q=Object.entries(p).map(([k,v])=>`${k}=${encodeURIComponent(v)}`).join("&");const r=await fetch(`${API}?${q}`);return r.json();}
@@ -304,6 +305,7 @@ async function resgatarSenha(){
 
 function sair(){sessionStorage.clear();location.reload();}
 
+let missoesList=[];
 async function carregarMissoes(){
     document.getElementById("telaMissoes").style.display="flex";
     document.getElementById("telaChat").style.display="none";
@@ -312,7 +314,6 @@ async function carregarMissoes(){
     document.getElementById("mSub").textContent=subs[S.plano]||"";
     if(missoesList.length){renderMissoes(missoesList);return;}
     try{
-        // Mantendo a rota 'buscar_missoes' que comprovadamente funciona no index2
         const r=await apiGet({acao:"buscar_missoes"});
         if(r.status==="sucesso"){missoesList=r.missoes;renderMissoes(missoesList);}
         else document.getElementById("grid").innerHTML="<p style='color:var(--err)'>Erro ao carregar missões.</p>";
@@ -332,10 +333,11 @@ function renderCards(lista){
     const g=document.getElementById("grid");g.innerHTML="";
     lista.forEach(m=>{
         const d=document.createElement("div");d.className="m-card";
-        const niv = (m.nivel || "B1").toUpperCase();
-        d.innerHTML=`<div class="m-tags"><span class="tag t${niv}">${niv}</span><span class="tag tcat">${m.categoria}</span></div><div class="m-titulo-card">${m.titulo}</div><div class="m-desc">${m.descricao}</div><div class="m-cta">Iniciar missão →</div>`;
-        // Agora redireciona para a caixa de preparação visual antes de iniciar de fato
-        d.onclick=()=>prepararInterfaceMissao(m);g.appendChild(d);
+        d.innerHTML=`<div class="m-tags"><span class="tag t${m.nivel}">${m.nivel}</span><span class="tag tcat">${m.categoria}</span></div><div class="m-titulo-card">${m.titulo}</div><div class="m-desc">${m.descricao}</div><div class="m-cta">Iniciar missão →</div>`;
+        
+        // REDIRECIONA PARA A ETAPA DE PREPARAÇÃO ANTES DO CHAT DIRETO
+        d.onclick=()=>prepararInterfaceMissao(m);
+        g.appendChild(d);
     });
     if(["Básico","Premium","Exclusive Enterprise","Personalizado"].includes(S.plano) && !S.expirado && S.restantes > 0){
         const l=document.createElement("div");l.className="livre-card";
@@ -359,10 +361,7 @@ function abrirChat(){
     }
 }
 
-function voltarMissoes(){
-    if(S.idMissao && !confirm("Sua missão atual está ativa. Deseja realmente voltar ao menu? (Seu progresso local será congelado)")) return;
-    carregarMissoes();
-}
+function voltarMissoes(){carregarMissoes();}
 
 function encerrarMissao() {
     if(confirm("Tem certeza que deseja encerrar a missão atual? O histórico desta simulação será limpo.")) {
@@ -372,13 +371,13 @@ function encerrarMissao() {
     }
 }
 
-/* NOVA INTERFACE ELEGANTE DE PREPARAÇÃO */
+/* INTERFACE ANTECIPADA DE START MISSION */
 function prepararInterfaceMissao(m) {
     S.idMissao = m.id;
     hist = [];
     
     document.getElementById("chatTitulo").textContent = m.titulo;
-    document.getElementById("chatLabel").textContent = `${m.categoria} · ${(m.nivel || "B1").toUpperCase()}`;
+    document.getElementById("chatLabel").textContent = `${m.categoria} · ${m.nivel}`;
     
     document.getElementById("telaMissoes").style.display = "none";
     document.getElementById("telaChat").style.display = "flex";
@@ -386,14 +385,14 @@ function prepararInterfaceMissao(m) {
     const b = document.getElementById("chatBox");
     b.innerHTML = `
         <div class="init-mission-box" id="boxGatilhoInicial">
-            <p>Você está prestes a entrar no cenário prático de <strong>${m.titulo}</strong>. Quando estiver pronto para interagir com o professor virtual, clique abaixo.</p>
-            <button class="btn-init-action" onclick="executarGatilhoMissao('${btoa(JSON.stringify(m))}')">Iniciar Simulação Corporativa</button>
+            <p>Você selecionou o cenário <strong>${m.titulo}</strong>.<br>Clique abaixo para iniciar sua simulação prática com o especialista virtual.</p>
+            <button class="btn-init-action" onclick="executarGatilhoMissao('${btoa(JSON.stringify(m))}')">Iniciar Conversação</button>
         </div>
     `;
-    lock(true);
+    lock(true); // Bloqueia inputs até dar Start
 }
 
-/* EFETIVA O INÍCIO DA MISSÃO CARREGANDO O PROFESSOR */
+/* EFETIVA O INÍCIO DO CHAT APÓS CLICAR NO START */
 function executarGatilhoMissao(m_encoded) {
     const m = JSON.parse(atob(m_encoded));
     const boxGatilho = document.getElementById("boxGatilhoInicial");
@@ -526,4 +525,100 @@ async function buscarPalavraSelecionada(e) {
 function fecharDict() {document.getElementById("dictPopover").style.display = "none";}
 function mk(cls,txt){const d=document.createElement("div");d.className=cls;d.textContent=txt;return d;}
 function box(){return document.getElementById("chatBox");}
-function roll(){const b=box();b.scrollTop=b.scrollHeight
+function roll(){const b=box();b.scrollTop=b.scrollHeight;}
+function save(){sessionStorage.setItem("fluent_hist",JSON.stringify(hist));}
+
+function lock(v){
+    document.getElementById("txtInput").disabled=v;
+    document.getElementById("btnMic").disabled=v;
+    document.getElementById("btnSend").disabled=v;
+}
+
+async function enviar(texto, canal){
+    addUser(texto); 
+    lock(true);
+    const ld = addLoad();
+    try {
+        const r = await apiPost({
+            acao: S.idMissao ? "processar_missao" : "processar_interacao",
+            id_missao: S.idMissao || null,
+            dados: { email: S.email, nome_aba: S.aba, input_texto: texto, canal, id_missao: S.idMissao || null }
+        });
+        ld.remove();
+        
+        if (r.status === "sucesso") {
+            addAI(r.reply);
+            if (r.error_logged && r.termo_corrigido) addCorr(r.termo_corrigido, r.correcao);
+            S.restantes = r.mensagens_restantes;
+            badge(r.mensagens_restantes);
+        }
+        else if (r.status === "fallback") {
+            if (r.fallback) addFB(r.fallback);
+            badge(S.restantes);
+        }
+        else if (r.status === "bloqueado") {
+            addAI(r.reply || "Limite de crédito atingido.", "", "aviso");
+            badge(0);
+            if (r.fallback) addFB(r.fallback);
+            renderCardUpgrade();
+            return;
+        }
+        else {
+            const d = mk("msg ai aviso", r.message || r.reply || "Erro inesperado.");
+            box().appendChild(d);
+        }
+    } catch (erro) {
+        ld.remove();
+        hist.pop(); 
+        save();
+        
+        const d = mk("msg ai aviso", "Falha de conexão. Sua última mensagem não foi enviada. Por favor, tente digitar ou falar novamente.");
+        box().appendChild(d);
+    }
+    finally {
+        if (S.plano === "Free" || (!S.expirado && S.restantes > 0)) {
+            lock(false);
+            document.getElementById("txtInput").focus();
+        }
+        roll();
+    }
+} 
+
+/* RECONHECIMENTO DE VOZ MELHORADO COM CAPTAÇÃO FLUIDA */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let rec,recA=false, silenceTimer = null;
+const bm=document.getElementById("btnMic");
+
+if(SR){
+    rec=new SR();
+    rec.lang="en-US";
+    rec.continuous=true; 
+    rec.interimResults=true;
+
+    rec.onstart=()=>{
+        bm.textContent="⏹ Parar";
+        bm.classList.add("rec");
+        resetSilenceTimeout();
+    };
+    
+    rec.onspeechstart=()=>{ resetSilenceTimeout(); };
+
+    let finalTranscript = "";
+    rec.onresult=e=>{
+        resetSilenceTimeout();
+        let interimTranscript = "";
+        for (let i = e.resultIndex; i < e.results.length; ++i) {
+            if (e.results[i].isFinal) {
+                finalTranscript += e.results[i][0].transcript;
+            } else {
+                interimTranscript += e.results[i][0].transcript;
+            }
+        }
+        document.getElementById("txtInput").value = finalTranscript || interimTranscript;
+    };
+    
+    rec.onend=()=>{
+        bm.textContent="🎤 Voz";
+        bm.classList.remove("rec");
+        recA=false;
+        if(silence
