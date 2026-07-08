@@ -67,10 +67,6 @@
         .m-titulo-card{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:400;}
         .m-desc{font-size:.85rem;color:var(--txt2);line-height:1.5;}
         .m-cta{font-size:.8rem;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;font-weight:500;margin-top:auto;}
-        .livre-card{background:var(--bg2);border:1px dashed var(--gold-sub);border-radius:4px;padding:24px;cursor:pointer;transition:all .3s;text-align:center;}
-        .livre-card:hover{border-color:var(--gold);}
-        .livre-card h3{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:1.2rem;color:var(--txt2);margin-bottom:6px;}
-        .livre-card p{font-size:.82rem;color:var(--txt2);}
         .m-loading{text-align:center;padding:48px;color:var(--txt2);font-style:italic;}
 
         /* CHAT */
@@ -96,7 +92,7 @@
         .msg.loading{opacity:.55;font-style:italic;padding-right:18px;}
         .msg.aviso{border-color:var(--warn);color:#f0e4c4;}
         
-        /* BOTÃO DE INICIAR MISSÃO ELEGANTE */
+        /* CAIXA DO GATILHO INICIAL ELEGANTE */
         .init-mission-box {display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;background:var(--bg2);border:1px solid var(--gold-sub);border-radius:6px;max-width:500px;margin:40px auto;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.25);animation:fadeIn 0.5s ease;}
         .init-mission-box p {font-size:0.95rem;color:var(--txt2);margin-bottom:20px;line-height:1.5;}
         .btn-init-action {background:transparent;border:1px solid var(--gold);color:var(--gold);padding:14px 28px;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;border-radius:3px;cursor:pointer;transition:0.3s;}
@@ -373,6 +369,7 @@ function renderizarGridMissoes() {
     filtradas.forEach(m => {
         const d = document.createElement("div");
         d.className = "m-card";
+        // CORREÇÃO AQUI: Atualizado para chamar a nova função que monta a tela com o botão elegante
         d.onclick = () => prepararInterfaceMissao(m);
         
         const niv = (m.nivel || "B1").toUpperCase();
@@ -445,7 +442,7 @@ function voltarMissoes(){
     document.getElementById("telaMissoes").style.display="flex";
 }
 
-/* NOVO: Prepara a tela de chat inserindo o convite com o botão elegante */
+/* Nova estrutura de preparação com o contêiner elegante de boas-vindas */
 function prepararInterfaceMissao(m) {
     S.idMissao = m.id;
     hist = [];
@@ -463,10 +460,10 @@ function prepararInterfaceMissao(m) {
     
     document.getElementById("telaMissoes").style.display = "none";
     document.getElementById("telaChat").style.display = "flex";
-    lock(true); // Mantém o input bloqueado até clicar no botão
+    lock(true); // Bloqueia a área de escrita de mensagens até a inicialização oficial
 }
 
-/* NOVO: Executa a chamada assíncrona ao servidor simulando a ativação estável */
+/* Dispara o início enviando a flag esperada pelo vosso servidor */
 function executarGatilhoMissao() {
     const boxGatilho = document.getElementById("boxGatilhoInicial");
     if(boxGatilho) boxGatilho.remove();
@@ -483,7 +480,7 @@ function executarGatilhoMissao() {
             addAI(r.reply);
             S.restantes = r.mensagens_restantes;
             badge(r.mensagens_restantes);
-            lock(false); // Destrava os inputs para uso
+            lock(false); // Libera o campo de texto para o utilizador
         } else {
             const d=mk("msg ai aviso", r.message || "Não foi possível carregar as diretrizes da simulação.");
             box().appendChild(d);
@@ -692,3 +689,32 @@ function renderCardUpgrade(){
 }
 
 function falarTexto(texto) {
+    if (!('speechSynthesis' in window)) {
+        alert("Seu navegador não suporta reprodução de áudio.");
+        return;
+    }
+    window.speechSynthesis.cancel(); 
+    const frase = new SpeechSynthesisUtterance(texto);
+    frase.lang = 'en-US';
+    frase.rate = 0.92; 
+    
+    const vozes = window.speechSynthesis.getVoices();
+    const vozIdeal = vozes.find(v => v.lang.includes('en-US') && (v.name.includes('Google') || v.name.includes('Natural')));
+    if (vozIdeal) frase.voice = vozIdeal;
+
+    window.speechSynthesis.speak(frase);
+}
+
+const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+if(SpeechRec){
+    const rec = new SpeechRec();
+    rec.lang = 'en-US';
+    rec.interimResults = false;
+    rec.maxAlternatives = 1;
+    
+    const btnM = document.getElementById("btnMic");
+    btnM.addEventListener("click",()=>{
+        if(btnM.classList.contains("rec")){
+            rec.stop();
+        } else {
+            btnM.classList.
