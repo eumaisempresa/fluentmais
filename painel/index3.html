@@ -66,8 +66,6 @@
         .tcat{background:rgba(122,143,163,.12);color:var(--txt2);}
         .m-titulo-card{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:400;}
         .m-desc{font-size:.85rem;color:var(--txt2);line-height:1.5;}
-        
-        /* CORRIGIDO O CSS QUE TRAVAVA O LOGIN AQUI: */
         .m-cta{font-size:.8rem;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;font-weight:500;margin-top:auto;}
         
         .livre-card{background:var(--bg2);border:1px dashed var(--gold-sub);border-radius:4px;padding:24px;cursor:pointer;transition:all .3s;text-align:center;}
@@ -100,10 +98,10 @@
         .msg.aviso{border-color:var(--warn);color:#f0e4c4;}
         
         /* CAIXA ELEGANTE START MISSION */
-        .init-mission-box {display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;background:var(--bg2);border:1px solid var(--gold-sub);border-radius:6px;max-width:500px;margin:40px auto;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.25);animation:fadeIn 0.5s ease;}
-        .init-mission-box p {font-size:0.95rem;color:var(--txt2);margin-bottom:20px;line-height:1.5;}
-        .btn-init-action {background:transparent;border:1px solid var(--gold);color:var(--gold);padding:14px 28px;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;border-radius:3px;cursor:pointer;transition:0.3s;}
-        .btn-init-action:hover {background:var(--gold);color:var(--bg);}
+        .init-mission-box {display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;background:var(--bg3);border:1px solid var(--gold);border-radius:4px;width:100%;max-width:520px;align-self:flex-start;text-align:left;box-shadow:0 6px 20px rgba(0,0,0,0.3);animation:fadeIn 0.4s ease;gap:14px;}
+        .init-mission-box p {font-size:0.92rem;color:var(--txt);line-height:1.5;}
+        .btn-init-action {background:var(--gold);border:1px solid var(--gold);color:var(--bg);padding:10px 20px;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;border-radius:2px;cursor:pointer;transition:0.2s;align-self:flex-start;}
+        .btn-init-action:hover {background:transparent;color:var(--gold);}
 
         /* BOTÃO DE AUDIO INTERNO */
         .btn-speak-msg {position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--txt2);cursor:pointer;font-size:1.1rem;transition:.2s;padding:4px;}
@@ -335,7 +333,6 @@ function renderCards(lista){
         const d=document.createElement("div");d.className="m-card";
         d.innerHTML=`<div class="m-tags"><span class="tag t${m.nivel}">${m.nivel}</span><span class="tag tcat">${m.categoria}</span></div><div class="m-titulo-card">${m.titulo}</div><div class="m-desc">${m.descricao}</div><div class="m-cta">Iniciar missão →</div>`;
         
-        // REDIRECIONA PARA A ETAPA DE PREPARAÇÃO ANTES DO CHAT DIRETO
         d.onclick=()=>prepararInterfaceMissao(m);
         g.appendChild(d);
     });
@@ -371,7 +368,7 @@ function encerrarMissao() {
     }
 }
 
-/* INTERFACE ANTECIPADA DE START MISSION */
+/* BOX START MISSION ORGANIZADO CORRETAMENTE APÓS O FLOW */
 function prepararInterfaceMissao(m) {
     S.idMissao = m.id;
     hist = [];
@@ -383,24 +380,33 @@ function prepararInterfaceMissao(m) {
     document.getElementById("telaChat").style.display = "flex";
     
     const b = document.getElementById("chatBox");
-    b.innerHTML = `
-        <div class="init-mission-box" id="boxGatilhoInicial">
-            <p>Você selecionou o cenário <strong>${m.titulo}</strong>.<br>Clique abaixo para iniciar sua simulação prática com o especialista virtual.</p>
-            <button class="btn-init-action" onclick="executarGatilhoMissao('${btoa(JSON.stringify(m))}')">Iniciar Conversação</button>
-        </div>
+    b.innerHTML = ""; // Limpa a janela antiga
+    
+    const containerGatilho = document.createElement("div");
+    containerGatilho.className = "init-mission-box";
+    containerGatilho.id = "boxGatilhoInicial";
+    containerGatilho.innerHTML = `
+        <p>Você selecionou o cenário corporativo: <strong>${m.titulo}</strong>.<br>Clique abaixo para acionar o especialista e iniciar a sua simulação em tempo real.</p>
+        <button class="btn-init-action" id="btnStartMissionAction">Iniciar Missão</button>
     `;
-    lock(true); // Bloqueia inputs até dar Start
+    b.appendChild(containerGatilho);
+    
+    // Adiciona evento direto sem passar strings encodadas que quebram o botão
+    document.getElementById("btnStartMissionAction").onclick = () => executarGatilhoMissao(m);
+    
+    lock(true); 
 }
 
-/* EFETIVA O INÍCIO DO CHAT APÓS CLICAR NO START */
-function executarGatilhoMissao(m_encoded) {
-    const m = JSON.parse(atob(m_encoded));
+/* INICIA DE FATO O CONTEÚDO DA MISSÃO COM SEGURANÇA */
+function executarGatilhoMissao(m) {
     const boxGatilho = document.getElementById("boxGatilhoInicial");
     if(boxGatilho) boxGatilho.remove();
     
     sessionStorage.setItem("fluent_hist", JSON.stringify(hist));
     lock(false);
-    addAI(m.pergunta_gatilho || "Let's begin. Ready when you are.", false);
+    
+    // Dispara a pergunta gatilho nativa do index2 original
+    addAI(m.pergunta_gatilho || "Let's begin the simulation. Whenever you are ready.", false);
 }
 
 function iniciarLivre(){
@@ -611,14 +617,4 @@ if(SR){
             if (e.results[i].isFinal) {
                 finalTranscript += e.results[i][0].transcript;
             } else {
-                interimTranscript += e.results[i][0].transcript;
-            }
-        }
-        document.getElementById("txtInput").value = finalTranscript || interimTranscript;
-    };
-    
-    rec.onend=()=>{
-        bm.textContent="🎤 Voz";
-        bm.classList.remove("rec");
-        recA=false;
-        if(silence
+                interimTranscript
