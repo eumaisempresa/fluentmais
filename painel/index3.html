@@ -96,6 +96,12 @@
         .msg.loading{opacity:.55;font-style:italic;padding-right:18px;}
         .msg.aviso{border-color:var(--warn);color:#f0e4c4;}
         
+        /* BOTÃO DE INICIAR MISSÃO ELEGANTE */
+        .init-mission-box {display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;background:var(--bg2);border:1px solid var(--gold-sub);border-radius:6px;max-width:500px;margin:40px auto;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.25);animation:fadeIn 0.5s ease;}
+        .init-mission-box p {font-size:0.95rem;color:var(--txt2);margin-bottom:20px;line-height:1.5;}
+        .btn-init-action {background:transparent;border:1px solid var(--gold);color:var(--gold);padding:14px 28px;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;border-radius:3px;cursor:pointer;transition:0.3s;}
+        .btn-init-action:hover {background:var(--gold);color:var(--bg);}
+
         /* BOTÃO DE AUDIO INTERNO */
         .btn-speak-msg {position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--txt2);cursor:pointer;font-size:1.1rem;transition:.2s;padding:4px;}
         .btn-speak-msg:hover {color:var(--gold);}
@@ -255,7 +261,6 @@ window.addEventListener("DOMContentLoaded",()=>{
     const p=new URLSearchParams(window.location.search);
     if(p.get("email"))document.getElementById("loginEmail").value=decodeURIComponent(p.get("email"));
     
-    // Suporte unificado PC (mouseup) e Celular (touchend) para capturar tradução
     const tratarSelecaoTexto = (e) => {
         const pop = document.getElementById("dictPopover");
         if(pop.contains(e.target)) return;
@@ -338,9 +343,7 @@ async function carregarMissoes(){
 
 function renderizarFiltros() {
     const fBox = document.getElementById("filtros");
-    // Coleta todos os níveis únicos das missões carregadas
     const niveis = ["TODOS", ...new Set(listaMissoesGlobal.map(m => (m.nivel || "B1").toUpperCase()))];
-    
     fBox.innerHTML = niveis.map(niv => {
         const classeAtivo = (filtroNivelAtual === niv) ? "ativo" : "";
         return `<button class="f-btn ${classeAtivo}" onclick="filtrarPorNivel('${niv}')">${niv}</button>`;
@@ -370,7 +373,7 @@ function renderizarGridMissoes() {
     filtradas.forEach(m => {
         const d = document.createElement("div");
         d.className = "m-card";
-        d.onclick = () => iniciarMissao(m);
+        d.onclick = () => prepararInterfaceMissao(m);
         
         const niv = (m.nivel || "B1").toUpperCase();
         const cat = m.categoria || "Business";
@@ -398,7 +401,6 @@ function abrirDict(termo, x, y){
     ph.textContent = "Traduzindo...";
     df.textContent = "Buscando correspondência...";
     
-    // Posiciona inteligentemente na janela
     let posX = x + window.scrollX + 10;
     let posY = y + window.scrollY - 40;
     if(posX + 270 > window.innerWidth) posX = window.innerWidth - 280;
@@ -413,8 +415,6 @@ function abrirDict(termo, x, y){
         if(Array.isArray(dados) && dados[0]){
             const item = dados[0];
             ph.textContent = item.phonetic || (item.phonetics && item.phonetics[0] ? item.phonetics[0].text : "/.../");
-            
-            // Busca tradução corporativa customizada via nossa planilha backend
             apiPost({acao:"traduzir_termo", dados:{termo: termo, contexto: S.aba}})
             .then(res => {
                 df.innerHTML = res.traducao ? `<strong>Significado:</strong> ${res.traducao}` : `<strong>Def:</strong> ${item.meanings[0].definitions[0].definition}`;
@@ -422,7 +422,6 @@ function abrirDict(termo, x, y){
                 df.textContent = item.meanings[0].definitions[0].definition;
             });
         } else {
-            // Tenta tradução direta caso não encontre no dicionário fonético inglês
             apiPost({acao:"traduzir_termo", dados:{termo: termo, contexto: S.aba}})
             .then(res => {
                 ph.textContent = "/comercial/";
@@ -446,7 +445,8 @@ function voltarMissoes(){
     document.getElementById("telaMissoes").style.display="flex";
 }
 
-function iniciarMissao(m){
+/* NOVO: Prepara a tela de chat inserindo o convite com o botão elegante */
+function prepararInterfaceMissao(m) {
     S.idMissao = m.id;
     hist = [];
     
@@ -454,35 +454,45 @@ function iniciarMissao(m){
     document.getElementById("chatLabel").textContent = `${(m.categoria || "Business")} · ${(m.nivel || "B1").toUpperCase()}`;
     
     const b = document.getElementById("chatBox");
-    b.innerHTML = "";
+    b.innerHTML = `
+        <div class="init-mission-box" id="boxGatilhoInicial">
+            <p>Você está prestes a entrar no cenário prático de <strong>${m.titulo}</strong>. Quando estiver pronto para interagir com o professor virtual, clique abaixo.</p>
+            <button class="btn-init-action" onclick="executarGatilhoMissao()">Iniciar Simulação Corporativa</button>
+        </div>
+    `;
     
     document.getElementById("telaMissoes").style.display = "none";
     document.getElementById("telaChat").style.display = "flex";
+    lock(true); // Mantém o input bloqueado até clicar no botão
+}
+
+/* NOVO: Executa a chamada assíncrona ao servidor simulando a ativação estável */
+function executarGatilhoMissao() {
+    const boxGatilho = document.getElementById("boxGatilhoInicial");
+    if(boxGatilho) boxGatilho.remove();
     
-    lock(true);
     const ld = addLoad();
     
-    // Modificado: Inicializa enviando direto uma string em branco no background, eliminando o "START MISSION" manual
     apiPost({
         acao: "processar_missao",
         id_missao: S.idMissao,
-        dados: { email: S.email, nome_aba: S.aba, input_texto: "", canal: "chat_init", id_missao: S.idMissao }
+        dados: { email: S.email, nome_aba: S.aba, input_texto: "START MISSION", canal: "chat_init" }
     }).then(r => {
         ld.remove();
         if(r.status === "sucesso"){
             addAI(r.reply);
             S.restantes = r.mensagens_restantes;
             badge(r.mensagens_restantes);
-            lock(false);
+            lock(false); // Destrava os inputs para uso
         } else {
             const d=mk("msg ai aviso", r.message || "Não foi possível carregar as diretrizes da simulação.");
-            b.appendChild(d);
+            box().appendChild(d);
         }
         roll();
     }).catch(() => {
         ld.remove();
         const d=mk("msg ai aviso", "Erro crítico de rede ao iniciar o cenário virtual.");
-        b.appendChild(d);
+        box().appendChild(d);
         roll();
     });
 }
@@ -539,6 +549,7 @@ async function enviar(texto, canal){
         }
         else if (r.status === "fallback") {
             if (r.fallback) addFB(r.fallback);
+            if (r.mensagens_restantes !== undefined) S.restantes = r.mensagens_restantes;
             badge(S.restantes);
         }
         else if (r.status === "bloqueado") {
@@ -561,7 +572,8 @@ async function enviar(texto, canal){
     finally {
         if (!S.expirado && S.restantes > 0) {
             lock(false);
-            document.getElementById("txtInput").focus();
+            const inputField = document.getElementById("txtInput");
+            if (inputField && !inputField.disabled) inputField.focus();
         }
         roll();
     }
@@ -640,7 +652,6 @@ function addFB(fbObj){
         h += `</div>`;
     }
     
-    // Novo: Inserção do botão de continuação explícito solicitado no item 2
     h += `<button class="btn-fb-continue" onclick="forcarContinuacaoFallback(this)">Continue Simulation →</button>`;
     
     d.innerHTML = h;
@@ -651,7 +662,6 @@ function addFB(fbObj){
 function forcarContinuacaoFallback(botaoElement) {
     botaoElement.disabled = true;
     botaoElement.textContent = "Resuming...";
-    // Dispara uma mensagem oculta/automática instruindo o professor a dar continuidade
     enviar("Please, let's continue with our simulation context.", "fallback_continue");
 }
 
@@ -682,57 +692,3 @@ function renderCardUpgrade(){
 }
 
 function falarTexto(texto) {
-    if (!('speechSynthesis' in window)) {
-        alert("Seu navegador não suporta reprodução de áudio.");
-        return;
-    }
-    window.speechSynthesis.cancel(); 
-    const frase = new SpeechSynthesisUtterance(texto);
-    frase.lang = 'en-US';
-    frase.rate = 0.92; 
-    
-    const vozes = window.speechSynthesis.getVoices();
-    const vozIdeal = vozes.find(v => v.lang.includes('en-US') && (v.name.includes('Google') || v.name.includes('Natural')));
-    if (vozIdeal) frase.voice = vozIdeal;
-
-    window.speechSynthesis.speak(frase);
-}
-
-// Configuração opcional de Reconhecimento de Voz (Speech Recognition)
-const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-if(SpeechRec){
-    const rec = new SpeechRec();
-    rec.lang = 'en-US';
-    rec.interimResults = false;
-    rec.maxAlternatives = 1;
-    
-    const btnM = document.getElementById("btnMic");
-    btnM.addEventListener("click",()=>{
-        if(btnM.classList.contains("rec")){
-            rec.stop();
-        } else {
-            btnM.classList.add("rec");
-            btnM.textContent = "🛑 Gravando...";
-            rec.start();
-        }
-    });
-    
-    rec.onresult = (e) => {
-        const t = e.results[0][0].transcript;
-        if(t && t.trim().length > 0) enviar(t, "voz");
-    };
-    
-    rec.onend = () => {
-        btnM.classList.remove("rec");
-        btnM.textContent = "🎤 Voz";
-    };
-    rec.onerror = () => {
-        btnM.classList.remove("rec");
-        btnM.textContent = "🎤 Voz";
-    };
-} else {
-    document.getElementById("btnMic").style.display = "none";
-}
-</script>
-</body>
-</html>
