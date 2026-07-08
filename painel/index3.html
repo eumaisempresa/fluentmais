@@ -60,13 +60,18 @@
         .m-card:hover{border-color:var(--gold);box-shadow:0 8px 24px rgba(196,151,74,.1);transform:translateY(-2px);}
         .m-tags{display:flex;gap:8px;flex-wrap:wrap;}
         .tag{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:2px;}
-        .tag.tA1{background:rgba(82,196,26,.12);color:var(--ok);}
-        .tag.tB1{background:rgba(250,173,20,.12);color:var(--warn);}
-        .tag.tC1{background:rgba(196,151,74,.18);color:var(--gold);}
+        .tag.tA1, .tag.tA2{background:rgba(82,196,26,.12);color:var(--ok);}
+        .tag.tB1, .tag.tB2{background:rgba(250,173,20,.12);color:var(--warn);}
+        .tag.tC1, .tag.tC2{background:rgba(196,151,74,.18);color:var(--gold);}
         .tcat{background:rgba(122,143,163,.12);color:var(--txt2);}
         .m-titulo-card{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:400;}
         .m-desc{font-size:.85rem;color:var(--txt2);line-height:1.5;}
         .m-cta{font-size:.8rem;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;font-weight:500;margin-top:auto;}
+        
+        .livre-card{background:var(--bg2);border:1px dashed var(--gold-sub);border-radius:4px;padding:24px;cursor:pointer;transition:all .3s;text-align:center;display:flex;flex-direction:column;justify-content:center;gap:8px;}
+        .livre-card:hover{border-color:var(--gold);box-shadow:0 8px 24px rgba(196,151,74,.05);}
+        .livre-card h3{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:1.3rem;color:var(--gold);}
+        .livre-card p{font-size:.82rem;color:var(--txt2);line-height:1.4;}
         .m-loading{text-align:center;padding:48px;color:var(--txt2);font-style:italic;}
 
         /* CHAT */
@@ -92,7 +97,7 @@
         .msg.loading{opacity:.55;font-style:italic;padding-right:18px;}
         .msg.aviso{border-color:var(--warn);color:#f0e4c4;}
         
-        /* CAIXA DO GATILHO INICIAL ELEGANTE */
+        /* CAIXA DE PREPARAÇÃO DE MISSÃO ELEGANTE */
         .init-mission-box {display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;background:var(--bg2);border:1px solid var(--gold-sub);border-radius:6px;max-width:500px;margin:40px auto;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.25);animation:fadeIn 0.5s ease;}
         .init-mission-box p {font-size:0.95rem;color:var(--txt2);margin-bottom:20px;line-height:1.5;}
         .btn-init-action {background:transparent;border:1px solid var(--gold);color:var(--gold);padding:14px 28px;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;border-radius:3px;cursor:pointer;transition:0.3s;}
@@ -114,10 +119,6 @@
         .qbtn:hover{border-color:var(--gold);}
         .qbtn.certo{background:rgba(82,196,26,.12);border-color:var(--ok);color:var(--ok);cursor:default;}
         .qbtn.errado{background:rgba(255,77,79,.08);border-color:var(--err);color:var(--err);cursor:default;}
-        
-        /* BOTÃO DE CONTINUAR DA CAIXA DE FALLBACK */
-        .btn-fb-continue {display:block;margin:12px auto 4px;background:transparent;border:1px solid var(--gold);color:var(--gold);padding:8px 16px;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;border-radius:2px;cursor:pointer;transition:.2s;}
-        .btn-fb-continue:hover {background:var(--gold);color:var(--bg);}
 
         /* CARD PREMIUM DE UPGRADE */
         .upgrade-card-premium {align-self:center;width:100%;max-width:460px;background:linear-gradient(145deg, #0A1624, #0E1E30);border:1px solid var(--gold);padding:30px;border-radius:6px;text-align:center;box-shadow:0 12px 36px rgba(196,151,74,0.15);margin:20px 0;animation:fadeIn 0.4s ease;}
@@ -222,8 +223,7 @@
 const API = "https://script.google.com/macros/s/AKfycbxP8AjgZ92Rloxe43CZxMFBRPAhgCSHG1Zm0PC65zo9c1biSeA2yGgZVMv2lsV01J4i/exec";
 let S = {email:"",aba:"",plano:"",nome:"",restantes:0,idMissao:null,expirado:false};
 let hist = [];
-let listaMissoesGlobal = [];
-let filtroNivelAtual = "TODOS";
+let missoesList = [];
 
 async function apiPost(p){const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(p)});return r.json();}
 async function apiGet(p){const q=Object.entries(p).map(([k,v])=>`${k}=${encodeURIComponent(v)}`).join("&");const r=await fetch(`${API}?${q}`);return r.json();}
@@ -257,21 +257,10 @@ window.addEventListener("DOMContentLoaded",()=>{
     const p=new URLSearchParams(window.location.search);
     if(p.get("email"))document.getElementById("loginEmail").value=decodeURIComponent(p.get("email"));
     
-    const tratarSelecaoTexto = (e) => {
+    document.addEventListener("click", (e) => {
         const pop = document.getElementById("dictPopover");
-        if(pop.contains(e.target)) return;
-        
-        let t = window.getSelection().toString().trim();
-        t = t.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"']/g,"");
-        if(t && t.length > 1 && t.length < 25 && /^[a-zA-Z\s'-]+$/.test(t)){
-            abrirDict(t, e.clientX || (e.changedTouches ? e.changedTouches[0].clientX : 100), e.clientY || (e.changedTouches ? e.changedTouches[0].clientY : 100));
-        } else {
-            if(!e.target.classList.contains("msg")) fecharDict();
-        }
-    };
-
-    document.addEventListener("mouseup", tratarSelecaoTexto);
-    document.addEventListener("touchend", tratarSelecaoTexto);
+        if(!pop.contains(e.target) && !e.target.classList.contains("msg")) fecharDict();
+    });
 });
 
 async function autenticar(){
@@ -313,408 +302,228 @@ async function resgatarSenha(){
     }catch{err.style.color="var(--err)";err.textContent="Falha de comunicação.";}
 }
 
-function sair(){
-    S={email:"",aba:"",plano:"",nome:"",restantes:0,idMissao:null,expirado:false};
-    hist=[];
-    document.getElementById("telaChat").style.display="none";
-    document.getElementById("telaMissoes").style.display="none";
-    document.getElementById("appHeader").style.display="none";
-    document.getElementById("telaLogin").style.display="flex";
-    document.getElementById("loginSenha").value="";
-    document.getElementById("btnLogin").disabled=false;
-    document.getElementById("btnLogin").textContent="Acessar";
-}
+function sair(){sessionStorage.clear();location.reload();}
 
 async function carregarMissoes(){
-    const g=document.getElementById("grid");
+    document.getElementById("telaMissoes").style.display="flex";
+    document.getElementById("telaChat").style.display="none";
+    S.idMissao=null;
+    const subs={"Free":"Plano Free: acesse insights e quizzes. Faça upgrade para conversations com IA.","Premium Trial":"Período trial ativo. Escolha uma missão.","Básico":"Missões + Chat Livre disponíveis.","Premium":"Acesso completo.","Exclusive Enterprise":"Acesso Enterprise ativado."};
+    document.getElementById("mSub").textContent=subs[S.plano]||"";
+    if(missoesList.length){renderMissoes(missoesList);return;}
     try{
-        const r=await apiGet({acao:"listar_missoes",email:S.email,aba:S.aba});
-        if(r.status==="sucesso" && r.missoes){
-            listaMissoesGlobal = r.missoes;
-            renderizarFiltros();
-            renderizarGridMissoes();
-        }else{g.innerHTML=`<div class="m-loading" style="color:var(--err)">${r.message||"Nenhuma missão disponível."}</div>`;}
-    }catch{g.innerHTML='<div class="m-loading" style="color:var(--err)">Erro ao carregar catálogo. Verifique sua conexão.</div>';}
+        // Mantendo a rota 'buscar_missoes' que comprovadamente funciona no index2
+        const r=await apiGet({acao:"buscar_missoes"});
+        if(r.status==="sucesso"){missoesList=r.missoes;renderMissoes(missoesList);}
+        else document.getElementById("grid").innerHTML="<p style='color:var(--err)'>Erro ao carregar missões.</p>";
+    }catch{document.getElementById("grid").innerHTML="<p style='color:var(--err)'>Falha de conexão.</p>";}
 }
 
-function renderizarFiltros() {
-    const fBox = document.getElementById("filtros");
-    const niveis = ["TODOS", ...new Set(listaMissoesGlobal.map(m => (m.nivel || "B1").toUpperCase()))];
-    fBox.innerHTML = niveis.map(niv => {
-        const classeAtivo = (filtroNivelAtual === niv) ? "ativo" : "";
-        return `<button class="f-btn ${classeAtivo}" onclick="filtrarPorNivel('${niv}')">${niv}</button>`;
-    }).join("");
+function renderMissoes(lista){
+    const cats=[...new Set(lista.map(m=>m.categoria))];
+    const fEl=document.getElementById("filtros");fEl.innerHTML="";
+    function mkFiltro(lbl,fn){const b=document.createElement("button");b.className="f-btn";b.textContent=lbl;b.onclick=()=>{document.querySelectorAll(".f-btn").forEach(x=>x.classList.remove("ativo"));b.classList.add("ativo");fn();};return b;}
+    const t=mkFiltro("Todas",()=>renderCards(lista));t.classList.add("ativo");fEl.appendChild(t);
+    cats.forEach(c=>fEl.appendChild(mkFiltro(c,()=>renderCards(lista.filter(m=>m.categoria===c)))));
+    renderCards(lista);
 }
 
-function filtrarPorNivel(nivel) {
-    filtroNivelAtual = nivel;
-    renderizarFiltros();
-    renderizarGridMissoes();
-}
-
-function renderizarGridMissoes() {
-    const g = document.getElementById("grid");
-    g.innerHTML = "";
-
-    const filtradas = listaMissoesGlobal.filter(m => {
-        if(filtroNivelAtual === "TODOS") return true;
-        return (m.nivel || "B1").toUpperCase() === filtroNivelAtual;
-    });
-
-    if(filtradas.length === 0) {
-        g.innerHTML = '<div class="m-loading">Nenhuma missão encontrada para este nível de dificuldade.</div>';
-        return;
-    }
-
-    filtradas.forEach(m => {
-        const d = document.createElement("div");
-        d.className = "m-card";
-        // CORREÇÃO AQUI: Atualizado para chamar a nova função que monta a tela com o botão elegante
-        d.onclick = () => prepararInterfaceMissao(m);
-        
+function renderCards(lista){
+    const g=document.getElementById("grid");g.innerHTML="";
+    lista.forEach(m=>{
+        const d=document.createElement("div");d.className="m-card";
         const niv = (m.nivel || "B1").toUpperCase();
-        const cat = m.categoria || "Business";
-        
-        d.innerHTML = `
-            <div class="m-tags">
-                <span class="tag t${niv}">${niv}</span>
-                <span class="tag tcat">${cat}</span>
-            </div>
-            <div class="m-titulo-card">${m.titulo}</div>
-            <div class="m-desc">${m.descricao || ""}</div>
-            <div class="m-cta">Iniciar missão →</div>
-        `;
-        g.appendChild(d);
+        d.innerHTML=`<div class="m-tags"><span class="tag t${niv}">${niv}</span><span class="tag tcat">${m.categoria}</span></div><div class="m-titulo-card">${m.titulo}</div><div class="m-desc">${m.descricao}</div><div class="m-cta">Iniciar missão →</div>`;
+        // Agora redireciona para a caixa de preparação visual antes de iniciar de fato
+        d.onclick=()=>prepararInterfaceMissao(m);g.appendChild(d);
     });
+    if(["Básico","Premium","Exclusive Enterprise","Personalizado"].includes(S.plano) && !S.expirado && S.restantes > 0){
+        const l=document.createElement("div");l.className="livre-card";
+        l.innerHTML="<h3>Chat Livre</h3><p>Fale sobre qualquer tema executivo sem roteiro.</p>";
+        l.onclick=iniciarLivre;g.appendChild(l);
+    }
 }
 
-function abrirDict(termo, x, y){
-    const pop = document.getElementById("dictPopover");
-    const w = document.getElementById("dictWord");
-    const ph = document.getElementById("dictPhonetic");
-    const df = document.getElementById("dictDefinition");
+function abrirChat(){
+    document.getElementById("telaMissoes").style.display="none";
+    document.getElementById("telaChat").style.display="flex";
+    document.getElementById("chatBox").innerHTML="";
+    document.getElementById("txtInput").focus();
     
-    w.textContent = termo;
-    ph.textContent = "Traduzindo...";
-    df.textContent = "Buscando correspondência...";
-    
-    let posX = x + window.scrollX + 10;
-    let posY = y + window.scrollY - 40;
-    if(posX + 270 > window.innerWidth) posX = window.innerWidth - 280;
-    
-    pop.style.left = posX + "px";
-    pop.style.top = posY + "px";
-    pop.style.display = "block";
-    
-    fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(termo.toLowerCase())}`)
-    .then(r => r.json())
-    .then(dados => {
-        if(Array.isArray(dados) && dados[0]){
-            const item = dados[0];
-            ph.textContent = item.phonetic || (item.phonetics && item.phonetics[0] ? item.phonetics[0].text : "/.../");
-            apiPost({acao:"traduzir_termo", dados:{termo: termo, contexto: S.aba}})
-            .then(res => {
-                df.innerHTML = res.traducao ? `<strong>Significado:</strong> ${res.traducao}` : `<strong>Def:</strong> ${item.meanings[0].definitions[0].definition}`;
-            }).catch(() => {
-                df.textContent = item.meanings[0].definitions[0].definition;
-            });
-        } else {
-            apiPost({acao:"traduzir_termo", dados:{termo: termo, contexto: S.aba}})
-            .then(res => {
-                ph.textContent = "/comercial/";
-                df.innerHTML = res.traducao ? `<strong>Tradução:</strong> ${res.traducao}` : "Termo não localizado.";
-            }).catch(() => {
-                ph.textContent = ""; df.textContent = "Não foi possível traduzir.";
-            });
-        }
-    }).catch(() => {
-        ph.textContent = ""; df.textContent = "Dicionário indisponível.";
-    });
-}
-
-function fecharDict(){
-    document.getElementById("dictPopover").style.display = "none";
+    if(S.expirado || (S.plano !== "Free" && S.restantes <= 0)) {
+        document.getElementById("bannerUpgrade").style.display = "flex";
+        lock(true);
+        renderCardUpgrade();
+    } else {
+        lock(false);
+    }
 }
 
 function voltarMissoes(){
     if(S.idMissao && !confirm("Sua missão atual está ativa. Deseja realmente voltar ao menu? (Seu progresso local será congelado)")) return;
-    document.getElementById("telaChat").style.display="none";
-    document.getElementById("telaMissoes").style.display="flex";
+    carregarMissoes();
 }
 
-/* Nova estrutura de preparação com o contêiner elegante de boas-vindas */
+function encerrarMissao() {
+    if(confirm("Tem certeza que deseja encerrar a missão atual? O histórico desta simulação será limpo.")) {
+        hist = [];
+        sessionStorage.removeItem("fluent_hist");
+        carregarMissoes();
+    }
+}
+
+/* NOVA INTERFACE ELEGANTE DE PREPARAÇÃO */
 function prepararInterfaceMissao(m) {
     S.idMissao = m.id;
     hist = [];
     
     document.getElementById("chatTitulo").textContent = m.titulo;
-    document.getElementById("chatLabel").textContent = `${(m.categoria || "Business")} · ${(m.nivel || "B1").toUpperCase()}`;
+    document.getElementById("chatLabel").textContent = `${m.categoria} · ${(m.nivel || "B1").toUpperCase()}`;
+    
+    document.getElementById("telaMissoes").style.display = "none";
+    document.getElementById("telaChat").style.display = "flex";
     
     const b = document.getElementById("chatBox");
     b.innerHTML = `
         <div class="init-mission-box" id="boxGatilhoInicial">
             <p>Você está prestes a entrar no cenário prático de <strong>${m.titulo}</strong>. Quando estiver pronto para interagir com o professor virtual, clique abaixo.</p>
-            <button class="btn-init-action" onclick="executarGatilhoMissao()">Iniciar Simulação Corporativa</button>
+            <button class="btn-init-action" onclick="executarGatilhoMissao('${btoa(JSON.stringify(m))}')">Iniciar Simulação Corporativa</button>
         </div>
     `;
-    
-    document.getElementById("telaMissoes").style.display = "none";
-    document.getElementById("telaChat").style.display = "flex";
-    lock(true); // Bloqueia a área de escrita de mensagens até a inicialização oficial
+    lock(true);
 }
 
-/* Dispara o início enviando a flag esperada pelo vosso servidor */
-function executarGatilhoMissao() {
+/* EFETIVA O INÍCIO DA MISSÃO CARREGANDO O PROFESSOR */
+function executarGatilhoMissao(m_encoded) {
+    const m = JSON.parse(atob(m_encoded));
     const boxGatilho = document.getElementById("boxGatilhoInicial");
     if(boxGatilho) boxGatilho.remove();
     
-    const ld = addLoad();
-    
-    apiPost({
-        acao: "processar_missao",
-        id_missao: S.idMissao,
-        dados: { email: S.email, nome_aba: S.aba, input_texto: "START MISSION", canal: "chat_init" }
-    }).then(r => {
-        ld.remove();
-        if(r.status === "sucesso"){
-            addAI(r.reply);
-            S.restantes = r.mensagens_restantes;
-            badge(r.mensagens_restantes);
-            lock(false); // Libera o campo de texto para o utilizador
-        } else {
-            const d=mk("msg ai aviso", r.message || "Não foi possível carregar as diretrizes da simulação.");
-            box().appendChild(d);
-        }
-        roll();
-    }).catch(() => {
-        ld.remove();
-        const d=mk("msg ai aviso", "Erro crítico de rede ao iniciar o cenário virtual.");
-        box().appendChild(d);
-        roll();
-    });
+    sessionStorage.setItem("fluent_hist", JSON.stringify(hist));
+    lock(false);
+    addAI(m.pergunta_gatilho || "Let's begin. Ready when you are.", false);
 }
 
-function encerrarMissao(){
-    if(!confirm("Deseja finalizar esta simulação agora? Você receberá um relatório estruturado do professor com base no seu desempenho geral até o momento.")) return;
-    lock(true);
-    const ld = addLoad();
-    apiPost({
-        acao: "encerrar_missao",
-        id_missao: S.idMissao,
-        dados: { email: S.email, nome_aba: S.aba, id_missao: S.idMissao, historico_local: hist }
-    }).then(r => {
-        ld.remove();
-        S.idMissao = null;
-        if(r.status === "sucesso"){
-            addAI(r.feedback || "Cenário finalizado com sucesso.");
-        } else {
-            addAI("Sessão encerrada. Retornando ao painel principal...");
-        }
-        roll();
-    }).catch(() => {
-        ld.remove();
-        S.idMissao = null;
-        addAI("Conexão interrompida. Sessão finalizada.");
-        roll();
-    });
+function iniciarLivre(){
+    S.idMissao=null;
+    document.getElementById("chatTitulo").textContent="Chat Livre";
+    document.getElementById("chatLabel").textContent="Qualquer tema executivo";
+    try{hist=JSON.parse(sessionStorage.getItem("fluent_hist")||"[]");}catch{hist=[];}
+    abrirChat();
+    hist.forEach(h=>h.tipo==="user"?addUser(h.texto,false):addAI(h.texto,false));
+    if(!hist.length)addAI("Welcome. What would you like to explore today?",false);
 }
 
 function dispararInput(){
-    const t = document.getElementById("txtInput").value.trim();
-    if(!t) return;
-    document.getElementById("txtInput").value = "";
-    enviar(t, "texto");
-}
-
-async function enviar(texto, canal){
-    addUser(texto);
-    lock(true);
-    const ld = addLoad();
-    try {
-        const r = await apiPost({
-            acao: S.idMissao ? "processar_missao" : "processar_interacao",
-            id_missao: S.idMissao || null,
-            dados: { email: S.email, nome_aba: S.aba, input_texto: texto, canal, id_missao: S.idMissao || null }
-        });
-        ld.remove();
-        
-        if (r.status === "sucesso") {
-            addAI(r.reply);
-            if (r.error_logged && r.termo_corrigido) addCorr(r.termo_corrigido, r.correcao);
-            S.restantes = r.mensagens_restantes;
-            badge(r.mensagens_restantes);
-        }
-        else if (r.status === "fallback") {
-            if (r.fallback) addFB(r.fallback);
-            if (r.mensagens_restantes !== undefined) S.restantes = r.mensagens_restantes;
-            badge(S.restantes);
-        }
-        else if (r.status === "bloqueado") {
-            addAI(r.reply || "Limite de crédito atingido.", "", "aviso");
-            badge(0);
-            if (r.fallback) addFB(r.fallback);
-            renderCardUpgrade();
-            return;
-        }
-        else {
-            const d = mk("msg ai aviso", r.message || r.reply || "Erro inesperado.");
-            box().appendChild(d);
-        }
-    } catch (erro) {
-        ld.remove();
-        hist.pop(); 
-        const d = mk("msg ai aviso", "Falha de conexão. Sua última mensagem não foi computada de forma segura. Por favor, tente enviar novamente.");
-        box().appendChild(d);
+    const campo = document.getElementById("txtInput");
+    const t = campo.value.trim();
+    if(t && !campo.disabled) {
+        campo.value = "";
+        enviar(t, "Texto");
     }
-    finally {
-        if (!S.expirado && S.restantes > 0) {
-            lock(false);
-            const inputField = document.getElementById("txtInput");
-            if (inputField && !inputField.disabled) inputField.focus();
-        }
-        roll();
-    }
-}
-
-function mk(c, txt){
-    const d=document.createElement("div");
-    d.className=c;
-    d.textContent=txt;
-    return d;
-}
-
-function box(){ return document.getElementById("chatBox"); }
-function roll(){ box().scrollTop = box().scrollHeight; }
-
-function lock(b){
-    document.getElementById("txtInput").disabled = b;
-    document.getElementById("btnSend").disabled = b;
-    document.getElementById("btnMic").disabled = b;
-}
-
-function addLoad(){
-    const d = mk("msg ai loading", "Professor está analisando sua resposta...");
-    box().appendChild(d);
-    roll();
-    return d;
-}
-
-function addUser(t){
-    hist.push({role:"user", text:t});
-    box().appendChild(mk("msg user", t));
-    roll();
-}
-
-function addAI(t){
-    hist.push({role:"ai", text:t});
-    const d = mk("msg ai", t);
-    
-    const bSpeak = document.createElement("button");
-    bSpeak.className = "btn-speak-msg";
-    bSpeak.innerHTML = "🔊";
-    bSpeak.title = "Ouvir áudio do professor";
-    bSpeak.onclick = (e) => {
-        e.stopPropagation();
-        falarTexto(t);
-    };
-    
-    d.appendChild(bSpeak);
-    box().appendChild(d);
-    roll();
-}
-
-function addCorr(original, corr){
-    const d = document.createElement("div");
-    d.className = "corr-card";
-    d.innerHTML = `💡 <strong>Sugestão Executiva:</strong> Em vez de "<em>${original}</em>", prefira usar <strong>${corr}</strong> para soar mais profissional no mercado global.`;
-    box().appendChild(d);
-    roll();
-}
-
-function addFB(fbObj){
-    const d = document.createElement("div");
-    d.className = "fb-card";
-    
-    let h = `<div class="fb-insight"><strong>Executive Insight:</strong> ${fbObj.insight || ""}</div>`;
-    if(fbObj.pergunta){
-        h += `
-            <div class="fb-qhdr">Desafio Relâmpago</div>
-            <div class="fb-qq">${fbObj.pergunta}</div>
-            <div class="fb-ops">
-        `;
-        const ops = fbObj.opcoes || [];
-        ops.forEach((o, idx) => {
-            h += `<button class="qbtn" onclick="responderQuiz(this, ${idx === (fbObj.correta || 0)})">${o}</button>`;
-        });
-        h += `</div>`;
-    }
-    
-    h += `<button class="btn-fb-continue" onclick="forcarContinuacaoFallback(this)">Continue Simulation →</button>`;
-    
-    d.innerHTML = h;
-    box().appendChild(d);
-    roll();
-}
-
-function forcarContinuacaoFallback(botaoElement) {
-    botaoElement.disabled = true;
-    botaoElement.textContent = "Resuming...";
-    enviar("Please, let's continue with our simulation context.", "fallback_continue");
-}
-
-function responderQuiz(btn, eCerto){
-    const pai = btn.parentElement;
-    const btns = pai.querySelectorAll(".qbtn");
-    btns.forEach(b => b.disabled = true);
-    if(eCerto){
-        btn.className = "qbtn certo";
-    } else {
-        btn.className = "qbtn errado";
-        btns.forEach(b => {
-            if(b.textContent.includes("certo") || b.getAttribute("onclick").includes("true")) b.className = "qbtn certo";
-        });
-    }
-}
-
-function renderCardUpgrade(){
-    const d = document.createElement("div");
-    d.className = "upgrade-card-premium";
-    d.innerHTML = `
-        <h4>Eleve seu Inglês Corporativo</h4>
-        <p>Você atingiu o limite de mensagens do ciclo gratuito. Libere acesso ilimitado a simulações de contratos, negociações de fusões e feedbacks em tempo real.</p>
-        <a href="https://wa.me/5527998131806?text=Quero+fazer+upgrade+do+meu+plano+Fluent" target="_blank" class="btn-upgrade-wa">Falar com Consultor</a>
-    `;
-    box().appendChild(d);
-    roll();
 }
 
 function falarTexto(texto) {
-    if (!('speechSynthesis' in window)) {
-        alert("Seu navegador não suporta reprodução de áudio.");
-        return;
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        let textoLimpo = texto.replace(/[\*\_`#]/g, "");
+        const utterance = new SpeechSynthesisUtterance(textoLimpo);
+        const vozes = window.speechSynthesis.getVoices();
+        const vozIngles = vozes.find(v => v.lang.startsWith('en-US') || v.lang.startsWith('en-GB'));
+        if (vozIngles) utterance.voice = vozIngles;
+        utterance.rate = 0.95;
+        window.speechSynthesis.speak(utterance);
     }
-    window.speechSynthesis.cancel(); 
-    const frase = new SpeechSynthesisUtterance(texto);
-    frase.lang = 'en-US';
-    frase.rate = 0.92; 
-    
-    const vozes = window.speechSynthesis.getVoices();
-    const vozIdeal = vozes.find(v => v.lang.includes('en-US') && (v.name.includes('Google') || v.name.includes('Natural')));
-    if (vozIdeal) frase.voice = vozIdeal;
-
-    window.speechSynthesis.speak(frase);
 }
 
-const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-if(SpeechRec){
-    const rec = new SpeechRec();
-    rec.lang = 'en-US';
-    rec.interimResults = false;
-    rec.maxAlternatives = 1;
+function addUser(t,s=true){const d=mk("msg user",t);box().appendChild(d);roll();if(s){hist.push({tipo:"user",texto:t});save();}}
+
+function addAI(t,s=true,extra=""){
+    const d=mk("msg ai",t);
+    if(extra)d.className+=" "+extra;
     
-    const btnM = document.getElementById("btnMic");
-    btnM.addEventListener("click",()=>{
-        if(btnM.classList.contains("rec")){
-            rec.stop();
-        } else {
-            btnM.classList.
+    if(!extra || !extra.includes("loading")) {
+        const btnAudio = document.createElement("button");
+        btnAudio.className = "btn-speak-msg";
+        btnAudio.innerHTML = "🔊";
+        btnAudio.title = "Ouvir pronúncia executiva";
+        btnAudio.onclick = (e) => {
+            e.stopPropagation();
+            falarTexto(t);
+        };
+        d.appendChild(btnAudio);
+        d.addEventListener("dblclick", (e) => buscarPalavraSelecionada(e));
+    }
+    
+    box().appendChild(d);
+    roll();
+    if(s){hist.push({tipo:"ai",texto:t});save();}
+    return d;
+}
+
+function addCorr(t,c){if(!t)return;const d=mk("corr-card",`💡 <strong>Correction:</strong> "${t}" → <strong style="color:var(--ok)">"${c}"</strong>`);d.innerHTML=d.textContent;d.innerHTML=`💡 <strong>Correction:</strong> "${t}" → <strong style="color:var(--ok)">"${c}"</strong>`;box().appendChild(d);roll();}
+function addLoad(){const d=mk("msg ai loading","Fluent⁺ está respondendo...");box().appendChild(d);roll();return d;}
+
+function addFB(fb){
+    const c=document.createElement("div");c.className="fb-card";
+    let h="";
+    if(fb.insight)h+=`<div class="fb-insight">${fb.insight}</div>`;
+    if(fb.quiz_pergunta){
+        h+=`<div class="fb-qhdr">🧠 Desafio Relâmpago</div><div class="fb-qq">${fb.quiz_pergunta}</div><div class="fb-ops">`;
+        [["A",fb.quiz_a],["B",fb.quiz_b],["C",fb.quiz_c]].forEach(([l,v])=>{if(v)h+=`<button class="qbtn" data-l="${l}" data-r="${fb.quiz_resposta}">${l}) ${v}</button>`;});
+        h+="</div>";
+    }
+    c.innerHTML=h;
+    c.querySelectorAll(".qbtn").forEach(b=>b.addEventListener("click",function(){
+        c.querySelectorAll(".qbtn").forEach(x=>{
+            x.disabled=true;
+            x.classList.add(x.dataset.l===x.dataset.r?"certo":"errado");
+        });
+    }));
+    box().appendChild(c);roll();
+}
+
+function renderCardUpgrade() {
+    if(document.querySelector(".upgrade-card-premium")) return;
+    const card = document.createElement("div");
+    card.className = "upgrade-card-premium";
+    card.innerHTML = `
+        <h4>Eleve sua fluência corporativa</h4>
+        <p>Sua conta atingiu o limite de interações ou o prazo de vigência contratada expirou. Desbloqueie conversações ilimitadas por IA com foco executivo e feedbacks em tempo real.</p>
+        <a href="https://wa.me/5527998131806?text=Quero+solicitar+o+upgrade+da+minha+plataforma+Fluent+Executive" target="_blank" class="btn-upgrade-wa">Falar com Consultor Corporativo</a>
+    `;
+    box().appendChild(card);
+    roll();
+}
+
+async function buscarPalavraSelecionada(e) {
+    let sel = window.getSelection().toString().trim().replace(/[^a-zA-Z]/g, "");
+    if(!sel || sel.length < 2) return;
+
+    const pop = document.getElementById("dictPopover");
+    pop.style.left = Math.min(e.pageX, window.innerWidth - 280) + "px";
+    pop.style.top = e.pageY + "px";
+    pop.style.display = "block";
+    
+    document.getElementById("dictWord").textContent = sel;
+    document.getElementById("dictPhonetic").textContent = "searching...";
+    document.getElementById("dictDefinition").textContent = "Translating...";
+
+    try {
+        const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${sel}`);
+        if(!response.ok) throw new Error();
+        const data = await response.json();
+        const info = data[0];
+        document.getElementById("dictPhonetic").textContent = info.phonetic || info.phonetics[0]?.text || "";
+        let def = info.meanings[0]?.definitions[0]?.definition || "Sem definição.";
+        document.getElementById("dictDefinition").textContent = def;
+    } catch {
+        document.getElementById("dictPhonetic").textContent = "";
+        document.getElementById("dictDefinition").textContent = "Definição não localizada.";
+    }
+}
+
+function fecharDict() {document.getElementById("dictPopover").style.display = "none";}
+function mk(cls,txt){const d=document.createElement("div");d.className=cls;d.textContent=txt;return d;}
+function box(){return document.getElementById("chatBox");}
+function roll(){const b=box();b.scrollTop=b.scrollHeight
