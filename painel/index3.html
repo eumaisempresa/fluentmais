@@ -47,22 +47,28 @@
         .btn-sm{background:none;border:1px solid var(--gold-sub);color:var(--txt2);padding:5px 12px;border-radius:2px;cursor:pointer;font-size:.75rem;text-transform:uppercase;}
         .btn-sm:hover{border-color:var(--gold);color:var(--gold);}
 
-        /* MISSÕES */
+        /* MISSÕES E FILTROS EXPANDIDOS */
         #telaMissoes{display:none;flex:1;flex-direction:column;}
         .m-wrap{max-width:960px;width:100%;margin:0 auto;padding:32px 20px;flex:1;}
         .m-titulo{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:1.8rem;color:var(--gold);margin-bottom:6px;}
-        .m-sub{color:var(--txt2);font-size:.88rem;margin-bottom:28px;}
-        .filtros{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;}
-        .f-btn{background:transparent;border:1px solid var(--gold-sub);color:var(--txt2);padding:6px 16px;border-radius:2px;cursor:pointer;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;transition:.2s;}
-        .f-btn.ativo,.f-btn:hover{border-color:var(--gold);color:var(--gold);}
+        .m-sub{color:var(--txt2);font-size:.88rem;margin-bottom:24px;}
+        
+        .secao-filtros{display:flex;flex-direction:column;gap:14px;margin-bottom:28px;background:var(--bg2);padding:18px;border-radius:4px;border:1px solid var(--gold-sub);}
+        .filtro-linha{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+        .filtro-label{font-size:.75rem;color:var(--txt2);text-transform:uppercase;letter-spacing:.06em;min-width:80px;}
+        .filtro-botoes{display:flex;gap:8px;flex-wrap:wrap;}
+        
+        .f-btn{background:transparent;border:1px solid var(--gold-sub);color:var(--txt2);padding:6px 14px;border-radius:2px;cursor:pointer;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;transition:.2s;}
+        .f-btn.ativo,.f-btn:hover{border-color:var(--gold);color:var(--gold);background:rgba(196,151,74,0.05);}
+        
         .m-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;}
         .m-card{background:var(--bg2);border:1px solid var(--gold-sub);border-radius:4px;padding:24px;cursor:pointer;transition:all .3s;display:flex;flex-direction:column;gap:12px;}
         .m-card:hover{border-color:var(--gold);box-shadow:0 8px 24px rgba(196,151,74,.1);transform:translateY(-2px);}
         .m-tags{display:flex;gap:8px;flex-wrap:wrap;}
         .tag{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:2px;}
-        .tag.tA1{background:rgba(82,196,26,.12);color:var(--ok);}
-        .tag.tB1{background:rgba(250,173,20,.12);color:var(--warn);}
-        .tag.tC1{background:rgba(196,151,74,.18);color:var(--gold);}
+        .tag.tA1, .tag.tA2{background:rgba(82,196,26,.12);color:var(--ok);}
+        .tag.tB1, .tag.tB2{background:rgba(250,173,20,.12);color:var(--warn);}
+        .tag.tC1, .tag.tC2{background:rgba(196,151,74,.18);color:var(--gold);}
         .tcat{background:rgba(122,143,163,.12);color:var(--txt2);}
         .m-titulo-card{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:400;}
         .m-desc{font-size:.85rem;color:var(--txt2);line-height:1.5;}
@@ -96,12 +102,6 @@
         .msg.ai{align-self:flex-start;background:var(--bg2);border:1px solid var(--gold-sub);padding:14px 44px 14px 18px;border-radius:4px;white-space:pre-wrap;cursor:help;}
         .msg.loading{opacity:.55;font-style:italic;padding-right:18px;}
         .msg.aviso{border-color:var(--warn);color:#f0e4c4;}
-        
-        /* CAIXA ELEGANTE START MISSION */
-        .init-mission-box {display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;background:var(--bg3);border:1px solid var(--gold);border-radius:4px;width:100%;max-width:520px;align-self:flex-start;text-align:left;box-shadow:0 6px 20px rgba(0,0,0,0.3);animation:fadeIn 0.4s ease;gap:14px;}
-        .init-mission-box p {font-size:0.92rem;color:var(--txt);line-height:1.5;}
-        .btn-init-action {background:var(--gold);border:1px solid var(--gold);color:var(--bg);padding:10px 20px;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;border-radius:2px;cursor:pointer;transition:0.2s;align-self:flex-start;}
-        .btn-init-action:hover {background:transparent;color:var(--gold);}
 
         /* BOTÃO DE AUDIO INTERNO */
         .btn-speak-msg {position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--txt2);cursor:pointer;font-size:1.1rem;transition:.2s;padding:4px;}
@@ -179,7 +179,18 @@
     <div class="m-wrap">
         <div class="m-titulo">Suas Missões</div>
         <div class="m-sub" id="mSub">Escolha um cenário para treinar.</div>
-        <div class="filtros" id="filtros"></div>
+        
+        <div class="secao-filtros">
+            <div class="filtro-linha">
+                <span class="filtro-label">Nível:</span>
+                <div class="filtro-botoes" id="filtrosNivel"></div>
+            </div>
+            <div class="filtro-linha">
+                <span class="filtro-label">Categoria:</span>
+                <div class="filtro-botoes" id="filtrosCategoria"></div>
+            </div>
+        </div>
+
         <div class="m-grid" id="grid"><div class="m-loading">Carregando missões...</div></div>
     </div>
 </div>
@@ -223,6 +234,11 @@
 const API = "https://script.google.com/macros/s/AKfycbxP8AjgZ92Rloxe43CZxMFBRPAhgCSHG1Zm0PC65zo9c1biSeA2yGgZVMv2lsV01J4i/exec";
 let S = {email:"",aba:"",plano:"",nome:"",restantes:0,idMissao:null,expirado:false};
 let hist = [];
+
+// Estados Globais de Filtro Ativo
+let nivelSelecionado = "TODOS";
+let categoriaSelecionada = "TODAS";
+let missoesList = [];
 
 async function apiPost(p){const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(p)});return r.json();}
 async function apiGet(p){const q=Object.entries(p).map(([k,v])=>`${k}=${encodeURIComponent(v)}`).join("&");const r=await fetch(`${API}?${q}`);return r.json();}
@@ -303,44 +319,111 @@ async function resgatarSenha(){
 
 function sair(){sessionStorage.clear();location.reload();}
 
-let missoesList=[];
 async function carregarMissoes(){
     document.getElementById("telaMissoes").style.display="flex";
     document.getElementById("telaChat").style.display="none";
     S.idMissao=null;
     const subs={"Free":"Plano Free: acesse insights e quizzes. Faça upgrade para conversations com IA.","Premium Trial":"Período trial ativo. Escolha uma missão.","Básico":"Missões + Chat Livre disponíveis.","Premium":"Acesso completo.","Exclusive Enterprise":"Acesso Enterprise ativado."};
     document.getElementById("mSub").textContent=subs[S.plano]||"";
-    if(missoesList.length){renderMissoes(missoesList);return;}
+    if(missoesList.length){configurarEBRenderizarFiltros();return;}
     try{
         const r=await apiGet({acao:"buscar_missoes"});
-        if(r.status==="sucesso"){missoesList=r.missoes;renderMissoes(missoesList);}
+        if(r.status==="sucesso"){
+            missoesList=r.missoes;
+            configurarEBRenderizarFiltros();
+        }
         else document.getElementById("grid").innerHTML="<p style='color:var(--err)'>Erro ao carregar missões.</p>";
     }catch{document.getElementById("grid").innerHTML="<p style='color:var(--err)'>Falha de conexão.</p>";}
 }
 
-function renderMissoes(lista){
-    const cats=[...new Set(lista.map(m=>m.categoria))];
-    const fEl=document.getElementById("filtros");fEl.innerHTML="";
-    function mkFiltro(lbl,fn){const b=document.createElement("button");b.className="f-btn";b.textContent=lbl;b.onclick=()=>{document.querySelectorAll(".f-btn").forEach(x=>x.classList.remove("ativo"));b.classList.add("ativo");fn();};return b;}
-    const t=mkFiltro("Todas",()=>renderCards(lista));t.classList.add("ativo");fEl.appendChild(t);
-    cats.forEach(c=>fEl.appendChild(mkFiltro(c,()=>renderCards(lista.filter(m=>m.categoria===c)))));
-    renderCards(lista);
+// Configura dinamicamente e renderiza as duas linhas de filtros
+function configurarEBRenderizarFiltros(){
+    const fNivel = document.getElementById("filtrosNivel");
+    const fCategoria = document.getElementById("filtrosCategoria");
+    fNivel.innerHTML = "";
+    fCategoria.innerHTML = "";
+
+    // 1. Extrair os Níveis únicos existentes na lista (Ex: A1, B1, C1, C2) ordenados
+    const niveisUnicos = ["TODOS", ...new Set(missoesList.map(m => m.nivel).filter(Boolean).sort())];
+    
+    // 2. Extrair as Categorias únicas existentes na lista
+    const categoriasUnicas = ["TODAS", ...new Set(missoesList.map(m => m.categoria).filter(Boolean).sort())];
+
+    // Criar botões para Níveis
+    niveisUnicos.forEach(niv => {
+        const btn = document.createElement("button");
+        btn.className = `f-btn ${nivelSelecionado === niv ? 'ativo' : ''}`;
+        btn.textContent = niv === "TODOS" ? "Todos os Níveis" : niv;
+        btn.onclick = () => {
+            fNivel.querySelectorAll(".f-btn").forEach(b => b.classList.remove("ativo"));
+            btn.classList.add("ativo");
+            nivelSelecionado = niv;
+            aplicarFiltrosCombinados();
+        };
+        fNivel.appendChild(btn);
+    });
+
+    // Criar botões para Categorias
+    categoriasUnicas.forEach(cat => {
+        const btn = document.createElement("button");
+        btn.className = `f-btn ${categoriaSelecionada === cat ? 'ativo' : ''}`;
+        btn.textContent = cat === "TODAS" ? "Todas as Categorias" : cat;
+        btn.onclick = () => {
+            fCategoria.querySelectorAll(".f-btn").forEach(b => b.classList.remove("ativo"));
+            btn.classList.add("ativo");
+            categoriaSelecionada = cat;
+            aplicarFiltrosCombinados();
+        };
+        fCategoria.appendChild(btn);
+    });
+
+    aplicarFiltrosCombinados();
+}
+
+// Filtra a lista com base nas duas escolhas simultaneamente
+function aplicarFiltrosCombinados() {
+    let filtradas = missoesList;
+
+    if (nivelSelecionado !== "TODOS") {
+        filtradas = filtradas.filter(m => m.nivel === nivelSelecionado);
+    }
+
+    if (categoriaSelecionada !== "TODAS") {
+        filtradas = filtradas.filter(m => m.categoria === categoriaSelecionada);
+    }
+
+    renderCards(filtradas);
 }
 
 function renderCards(lista){
     const g=document.getElementById("grid");g.innerHTML="";
+    
+    if(lista.length === 0) {
+        g.innerHTML = "<div class='m-loading'>Nenhuma missão localizada para este nível ou categoria.</div>";
+        return;
+    }
+
     lista.forEach(m=>{
         const d=document.createElement("div");d.className="m-card";
         d.innerHTML=`<div class="m-tags"><span class="tag t${m.nivel}">${m.nivel}</span><span class="tag tcat">${m.categoria}</span></div><div class="m-titulo-card">${m.titulo}</div><div class="m-desc">${m.descricao}</div><div class="m-cta">Iniciar missão →</div>`;
-        
-        d.onclick=()=>prepararInterfaceMissao(m);
+        d.onclick=()=>iniciarMissaoDirect(m);
         g.appendChild(d);
     });
+    
     if(["Básico","Premium","Exclusive Enterprise","Personalizado"].includes(S.plano) && !S.expirado && S.restantes > 0){
         const l=document.createElement("div");l.className="livre-card";
         l.innerHTML="<h3>Chat Livre</h3><p>Fale sobre qualquer tema executivo sem roteiro.</p>";
         l.onclick=iniciarLivre;g.appendChild(l);
     }
+}
+
+function iniciarMissaoDirect(m){
+    S.idMissao=m.id;
+    hist=[];
+    document.getElementById("chatTitulo").textContent=m.titulo;
+    document.getElementById("chatLabel").textContent=`${m.categoria} · ${m.nivel}`;
+    abrirChat();
+    addAI(m.pergunta_gatilho||"Let's begin. Ready when you are.",false);
 }
 
 function abrirChat(){
@@ -366,47 +449,6 @@ function encerrarMissao() {
         sessionStorage.removeItem("fluent_hist");
         carregarMissoes();
     }
-}
-
-/* BOX START MISSION ORGANIZADO CORRETAMENTE APÓS O FLOW */
-function prepararInterfaceMissao(m) {
-    S.idMissao = m.id;
-    hist = [];
-    
-    document.getElementById("chatTitulo").textContent = m.titulo;
-    document.getElementById("chatLabel").textContent = `${m.categoria} · ${m.nivel}`;
-    
-    document.getElementById("telaMissoes").style.display = "none";
-    document.getElementById("telaChat").style.display = "flex";
-    
-    const b = document.getElementById("chatBox");
-    b.innerHTML = ""; // Limpa a janela antiga
-    
-    const containerGatilho = document.createElement("div");
-    containerGatilho.className = "init-mission-box";
-    containerGatilho.id = "boxGatilhoInicial";
-    containerGatilho.innerHTML = `
-        <p>Você selecionou o cenário corporativo: <strong>${m.titulo}</strong>.<br>Clique abaixo para acionar o especialista e iniciar a sua simulação em tempo real.</p>
-        <button class="btn-init-action" id="btnStartMissionAction">Iniciar Missão</button>
-    `;
-    b.appendChild(containerGatilho);
-    
-    // Adiciona evento direto sem passar strings encodadas que quebram o botão
-    document.getElementById("btnStartMissionAction").onclick = () => executarGatilhoMissao(m);
-    
-    lock(true); 
-}
-
-/* INICIA DE FATO O CONTEÚDO DA MISSÃO COM SEGURANÇA */
-function executarGatilhoMissao(m) {
-    const boxGatilho = document.getElementById("boxGatilhoInicial");
-    if(boxGatilho) boxGatilho.remove();
-    
-    sessionStorage.setItem("fluent_hist", JSON.stringify(hist));
-    lock(false);
-    
-    // Dispara a pergunta gatilho nativa do index2 original
-    addAI(m.pergunta_gatilho || "Let's begin the simulation. Whenever you are ready.", false);
 }
 
 function iniciarLivre(){
@@ -617,4 +659,45 @@ if(SR){
             if (e.results[i].isFinal) {
                 finalTranscript += e.results[i][0].transcript;
             } else {
-                interimTranscript
+                interimTranscript += e.results[i][0].transcript;
+            }
+        }
+        document.getElementById("txtInput").value = finalTranscript || interimTranscript;
+    };
+    
+    rec.onend=()=>{
+        bm.textContent="🎤 Voz";
+        bm.classList.remove("rec");
+        recA=false;
+        if(silenceTimer) clearTimeout(silenceTimer);
+        const textoCapturado = document.getElementById("txtInput").value.trim();
+        if(textoCapturado && finalTranscript !== "") {
+            finalTranscript = "";
+            enviar(textoCapturado, "Voz");
+        }
+    };
+    
+    bm.addEventListener("click",()=>{
+        if(!recA){
+            finalTranscript = "";
+            document.getElementById("txtInput").value = "";
+            rec.start();
+            recA=true;
+        }else {
+            rec.stop();
+        }
+    });
+}else{
+    bm.textContent="Voz indisponível";
+    bm.disabled=true;
+}
+
+function resetSilenceTimeout() {
+    if(silenceTimer) clearTimeout(silenceTimer);
+    silenceTimer = setTimeout(() => {
+        if(recA) { rec.stop(); }
+    }, 4000);
+}
+</script>
+</body>
+</html>
