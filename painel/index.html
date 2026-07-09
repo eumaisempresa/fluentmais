@@ -159,7 +159,7 @@
         <h2>Fluent<span>⁺</span></h2>
         <div class="login-sub">EU⁺ Executivo — Identificação</div>
         <div class="inp-g"><label>E-mail</label><input type="email" id="loginEmail" autocomplete="off"></div>
-        <div class="inp-g"><label>Senha (EXECxxxx)</label><input type="password" id="loginSenha"></div>
+        <div class="inp-g"><label>Senha</label><input type="password" id="loginSenha"></div>
         <button class="btn-full" id="btnLogin" onclick="autenticar()">Acessar</button>
         <a class="forgot-pass" onclick="resgatarSenha()">Esqueci minha senha</a>
         <div class="login-erro" id="loginErro"></div>
@@ -226,7 +226,7 @@
 </div>
 
 <footer>
-    <a href="https://www.eumaisempresa.com.br" target="_blank">Grupo EU⁺</a> &gt;
+    <a href="https://www.eumaisempresa.com.br" target="_blank">Ecossistema EU⁺</a> &gt;
     Fluent<span style="font-size:.7em;vertical-align:super;">⁺</span>
 </footer>
 
@@ -289,7 +289,7 @@ async function autenticar(){
         const r=await apiPost({acao:"validar_login",dados:{email,senha}});
         if(r.status==="sucesso"){
             if(r.acesso_expirado){
-                err.textContent="Acesso expirado. Entre em contato.";
+                err.textContent="Acesso expirado. Entre em contato com 27 99813-1806 pelo whatsapp.";
                 btn.disabled=false;btn.textContent="ACESSAR";
                 return;
             }
@@ -423,7 +423,7 @@ function iniciarMissaoDirect(m){
     document.getElementById("chatTitulo").textContent=m.titulo;
     document.getElementById("chatLabel").textContent=`${m.categoria} · ${m.nivel}`;
     abrirChat();
-    addAI(m.pergunta_gatilho||"Let's begin. Ready when you are.",false);
+    addAI(m.pergunta_gatilho||"Let's begin. Hoe are you?",false);
 }
 
 function abrirChat(){
